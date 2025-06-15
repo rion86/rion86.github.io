@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ラテール エンチャント評価（ベータ版）</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f0f4f8;
             /* フッターが固定されるため、コンテンツが隠れないようにボディの下部に余白を追加 */
-            padding-bottom: 90px; /* フッターの高さに合わせて調整してください */
+            padding-bottom: 70px; /* フッターの高さに合わせて調整 */
+            padding-top: 20px; /* 上部にも少し余白 */
         }
         /* 動的なエンチャント入力行のスタイル */
         .enchantment-row {
@@ -79,12 +81,12 @@
             left: 0;
             right: 0;
             background-color: #e2e8f0; /* フッターの背景色（薄いグレー） */
-            padding: 8px 15px; /* 上下左右のパディングを小さく */
+            padding: 5px 10px; /* 上下左右のパディングをさらに小さく */
             display: flex;
             flex-direction: column; /* 小さい画面では縦並び */
             justify-content: space-between;
             align-items: center;
-            font-size: 0.65rem; /* テキストサイズをさらに小さく */
+            font-size: 0.6rem; /* テキストサイズをさらに小さく */
             color: #6b7280; /* テキスト色をグレーに */
             border-top: 1px solid #cbd5e0; /* 上部に細い境界線 */
             z-index: 1000; /* 他のコンテンツの上に表示されるように */
@@ -94,80 +96,24 @@
                 flex-direction: row; /* 広い画面では横並び */
             }
         }
-
-        /* 固定ボタンコンテナのスタイル */
-        .fixed-buttons-container-left {
-            position: fixed;
-            bottom: 100px; /* フッターのすぐ上に配置 */
-            left: 20px; /* 左側に固定 */
-            display: flex;
-            flex-direction: column; /* ボタンを縦に並べる */
-            gap: 10px; /* ボタン間のスペース */
-            z-index: 999; /* フッターよりは下、コンテンツよりは上 */
-        }
-        .fixed-buttons-container-right {
-            position: fixed;
-            bottom: 100px; /* フッターのすぐ上に配置 */
-            right: 20px; /* 右側に固定 */
-            display: flex;
-            flex-direction: column; /* ボタンを縦に並べる */
-            gap: 10px; /* ボタン間のスペース */
-            z-index: 999; /* フッターよりは下、コンテンツよりは上 */
-        }
-        .fixed-buttons-container-left button,
-        .fixed-buttons-container-right button {
-            width: 150px; /* ボタンの幅を固定 */
-            text-align: center;
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start p-4">
     <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-7xl border border-gray-200 mb-6">
-        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">ラテール<br>エンチャント評価（ベータ版）</h1>
+        <h1 class="text-xl font-bold text-center text-gray-800 mb-6">ラテール<br>エンチャント評価（ベータ版）</h1>
 
         <div id="enchantmentInputsContainer" class="flex flex-wrap gap-4 mb-6">
-            </div>
-
-        <div id="messageBox" class="mt-4 p-4 rounded-md hidden" role="alert">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <svg id="messageIcon" class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <p id="messageText" class="text-sm font-medium text-red-800"></p>
-                </div>
-            </div>
+            <!-- エンチャント入力行はここに動的に追加されます -->
         </div>
     </div>
 
-    <div class="fixed-buttons-container-left">
-        <button id="addEnchantmentButtonLeft" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75">
-            装備を追加
-        </button>
-        <button id="evaluateAllButtonLeft" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
-            エンチャントを評価
-        </button>
-    </div>
-
-    <div class="fixed-buttons-container-right">
-        <button id="addEnchantmentButtonRight" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75">
-            装備を追加
-        </button>
-        <button id="evaluateAllButtonRight" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75">
-            エンチャントを評価
-        </button>
-    </div>
-
+    <!-- 著作権表示と開発者メッセージの固定フッター -->
     <div class="site-footer">
         <div class="text-left mb-2 sm:mb-0">
-            <p>AIで作成した為計算に一部間違いがある可能性があります</p>
-            <p>精霊石、特殊、追加エンチャ等は未対応です、精霊石は要望があればやるかも、DMで送ってください。</p>
-            <p>DMはこちらまで<a href="https://x.com/XRusenyou" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">https://x.com/XRusenyou</a></p>
+            <p>一部をAIで作成した為計算に間違いがある可能性があります。</p>
+            <p>なにかあればこちらまで<a href="https://x.com/XRusenyou" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">https://x.com/XRusenyou</a></p>
         </div>
         <div class="text-right">
-            <p><a href="https://la.happytuk.co.jp/la/index" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">https://la.happytuk.co.jp/la/index</a></p>
             <p>&copy;HappyTuk Co., Ltd. All Rights Reserved.</p>
             <p>&copy;Actoz Soft. All Rights Reserved.</p>
         </div>
@@ -426,10 +372,6 @@
 
         // HTML要素への参照を取得
         const enchantmentInputsContainer = document.getElementById('enchantmentInputsContainer');
-        const addEnchantmentButtonLeft = document.getElementById('addEnchantmentButtonLeft');
-        const evaluateAllButtonLeft = document.getElementById('evaluateAllButtonLeft');
-        const addEnchantmentButtonRight = document.getElementById('addEnchantmentButtonRight');
-        const evaluateAllButtonRight = document.getElementById('evaluateAllButtonRight');
 
         let enchantmentRowCount = 0; // 各行の一意なIDを追跡
 
@@ -594,8 +536,7 @@
             const myEnchantmentValueInput = newRow.querySelector('.my-enchantment-value-input');
             const removeButton = newRow.querySelector('.remove-enchantment-button');
             const individualResultDisplay = newRow.querySelector('.individual-result-display');
-            const progressBarPercentageText = newRow.querySelector('.progress-percentage-text');
-
+            // const progressBarPercentageText = newRow.querySelector('.progress-percentage-text'); // This is inside evaluateSingleEnchantmentRow
 
             // 新しい行の装備種別ドロップダウンにオプションを設定し、デフォルト値を「武器」に設定
             populateEquipmentTypes(equipmentSelect);
@@ -612,22 +553,26 @@
             // エンチャントレベルのデフォルトはLv4 (innerHTMLで設定済み)
 
             // 動的要素のイベントリスナーを追加
+            // リアルタイム評価
+            myEnchantmentValueInput.addEventListener('input', () => evaluateSingleEnchantmentRow(newRow));
+
+            // 装備種別またはエンチャント名変更時に数値と結果をリセット
             equipmentSelect.addEventListener('change', () => {
                 populateEnchantmentNames(equipmentSelect, enchantmentNameSelect);
                 if (enchantmentNameSelect.options.length > 0) {
                     const defaultNameOption = Array.from(enchantmentNameSelect.options).find(opt => opt.value === 'クリティカルダメージ');
                     enchantmentNameSelect.value = defaultNameOption ? 'クリティカルダメージ' : enchantmentNameSelect.options[0].value;
                 }
-                individualResultDisplay.classList.add('hidden'); // この行の結果を非表示
+                myEnchantmentValueInput.value = ''; // 数値を自動的に削除
+                individualResultDisplay.classList.add('hidden'); // 結果を非表示
             });
             enchantmentNameSelect.addEventListener('change', () => {
-                individualResultDisplay.classList.add('hidden'); // この行の結果を非表示
+                myEnchantmentValueInput.value = ''; // 数値を自動的に削除
+                individualResultDisplay.classList.add('hidden'); // 結果を非表示
             });
             enchantmentLevelSelect.addEventListener('change', () => {
-                individualResultDisplay.classList.add('hidden'); // この行の結果を非表示
-            });
-            myEnchantmentValueInput.addEventListener('input', () => {
-                individualResultDisplay.classList.add('hidden'); // この行の結果を非表示
+                // レベル変更時は数値をリセットしないが、結果は非表示にする
+                individualResultDisplay.classList.add('hidden');
             });
 
             removeButton.addEventListener('click', () => {
@@ -635,138 +580,127 @@
             });
         }
 
-        // 全てのエンチャントを評価する共通関数
-        function evaluateAllEnchantments() {
-            // 以前の個別の結果を全て非表示にする
-            document.querySelectorAll('.individual-result-display').forEach(el => el.classList.add('hidden'));
+        // 単一のエンチャント入力行を評価する関数
+        function evaluateSingleEnchantmentRow(rowElement) {
+            const equipmentSelect = rowElement.querySelector('.equipment-type-select');
+            const enchantmentNameSelect = rowElement.querySelector('.enchantment-name-select');
+            const enchantmentLevelSelect = rowElement.querySelector('.enchantment-level-select');
+            const myEnchantmentValueInput = rowElement.querySelector('.my-enchantment-value-input');
 
-            const enchantmentRows = document.querySelectorAll('.enchantment-row');
+            const individualResultDisplay = rowElement.querySelector('.individual-result-display');
+            const evaluationMessageEl = individualResultDisplay.querySelector('.evaluation-message');
+            const progressBarContainerEl = individualResultDisplay.querySelector('.progress-bar-container');
+            const progressBarEl = individualResultDisplay.querySelector('.progress-bar');
+            const minValueDisplayEl = individualResultDisplay.querySelector('.min-value-display');
+            const maxValueDisplayEl = individualResultDisplay.querySelector('.max-value-display');
+            const progressBarPercentageText = individualResultDisplay.querySelector('.progress-percentage-text');
 
-            if (enchantmentRows.length === 0) {
-                // 行がなければ何もしない
+
+            // 現在の行から値を取得
+            const selectedEquipment = equipmentSelect.value;
+            const selectedEnchantmentName = enchantmentNameSelect.value;
+            const selectedEnchantmentLevel = enchantmentLevelSelect.value;
+            const myValue = parseFloat(myEnchantmentValueInput.value);
+
+            // --- 個別の検証と評価ロジック ---
+            // 数値が入力されていない、または選択肢が未選択の場合は結果を非表示にする
+            if (!selectedEquipment || !selectedEnchantmentName || !selectedEnchantmentLevel || isNaN(myValue) || myValue < 0) {
+                evaluationMessageEl.innerHTML = '入力が不完全または無効です。<br>選択肢と数値をすべて確認してください。';
+                evaluationMessageEl.classList.add('text-red-600');
+                progressBarContainerEl.classList.add('hidden');
+                minValueDisplayEl.textContent = '';
+                maxValueDisplayEl.textContent = '';
+                individualResultDisplay.classList.remove('hidden'); // エラーを表示するために表示
+                return;
+            } else {
+                evaluationMessageEl.classList.remove('text-red-600');
+            }
+
+            // 選択されたタイプ（全レベル）の完全なエンチャントデータを検索
+            const fullEnchantmentData = enchantmentData.find(e =>
+                e.equipment === selectedEquipment &&
+                e.name === selectedEnchantmentName
+            );
+
+            if (!fullEnchantmentData) {
+                evaluationMessageEl.innerHTML = 'この組み合わせのデータが見つかりません。<br>正しい装備種別とエンチャント名を選択してください。';
+                evaluationMessageEl.classList.add('text-red-600');
+                progressBarContainerEl.classList.add('hidden');
+                minValueDisplayEl.textContent = '';
+                maxValueDisplayEl.textContent = '';
+                individualResultDisplay.classList.remove('hidden');
                 return;
             }
 
-            enchantmentRows.forEach((row) => {
-                const equipmentSelect = row.querySelector('.equipment-type-select');
-                const enchantmentNameSelect = row.querySelector('.enchantment-name-select');
-                const enchantmentLevelSelect = row.querySelector('.enchantment-level-select');
-                const myEnchantmentValueInput = row.querySelector('.my-enchantment-value-input');
+            // 累積増加に基づいて選択されたレベルの有効な最小値/最大値を計算
+            const { min: effectiveMinValue, max: effectiveMaxValue } = calculateEffectiveMinMax(fullEnchantmentData, selectedEnchantmentLevel);
+            // 単位と名前を安全に取得（フォールバック付き）
+            const unit = fullEnchantmentData.unit || '';
+            const name = fullEnchantmentData.name || '';
 
-                const individualResultDisplay = row.querySelector('.individual-result-display');
-                const evaluationMessageEl = individualResultDisplay.querySelector('.evaluation-message');
-                const progressBarContainerEl = individualResultDisplay.querySelector('.progress-bar-container');
-                const progressBarEl = individualResultDisplay.querySelector('.progress-bar');
-                const minValueDisplayEl = individualResultDisplay.querySelector('.min-value-display');
-                const maxValueDisplayEl = individualResultDisplay.querySelector('.max-value-display');
-                const progressBarPercentageText = individualResultDisplay.querySelector('.progress-percentage-text');
+            // 小数点表示が必要なエンチャント名のリスト
+            const decimalDisplayEnchantNames = ['一般モンスター支配力', 'ボスモンスター支配力', 'スキルクールタイム減少'];
 
 
-                // 現在の行から値を取得
-                const selectedEquipment = equipmentSelect.value;
-                const selectedEnchantmentName = enchantmentNameSelect.value;
-                const selectedEnchantmentLevel = enchantmentLevelSelect.value;
-                const myValue = parseFloat(myEnchantmentValueInput.value);
-
-                // --- 各エンチャントの個別の検証と評価ロジック ---
-                if (!selectedEquipment || !selectedEnchantmentName || !selectedEnchantmentLevel || isNaN(myValue) || myValue < 0) {
-                    evaluationMessageEl.innerHTML = '入力が不完全または無効です。<br>選択肢と数値をすべて確認してください。';
-                    evaluationMessageEl.classList.add('text-red-600');
-                    progressBarContainerEl.classList.add('hidden');
-                    minValueDisplayEl.textContent = '';
-                    maxValueDisplayEl.textContent = '';
-                    individualResultDisplay.classList.remove('hidden'); // この行のエラーを表示
-                    return; // この行の評価をスキップし、他の行の処理を続行
-                } else {
-                    evaluationMessageEl.classList.remove('text-red-600');
+            if (effectiveMinValue === null || effectiveMaxValue === null || isNaN(effectiveMinValue) || isNaN(effectiveMaxValue)) {
+                evaluationMessageEl.innerHTML = `${name} (${selectedEnchantmentLevel}):<br>数値範囲は現在不明です。データを確認してください。`;
+                minValueDisplayEl.textContent = `最小値: 不明`;
+                maxValueDisplayEl.textContent = `最大値: 不明`;
+                progressBarContainerEl.classList.add('hidden');
+            } else if (myValue < effectiveMinValue || myValue > effectiveMaxValue) {
+                evaluationMessageEl.innerHTML = `${name} (${selectedEnchantmentLevel}, ${myValue}${unit}):<br>通常の範囲 (${effectiveMinValue}${unit} - ${effectiveMaxValue}${unit}) から外れています。`;
+                minValueDisplayEl.textContent = `最小値: ${effectiveMinValue}${unit}`;
+                maxValueDisplayEl.textContent = `最大値: ${effectiveMaxValue}${unit}`;
+                progressBarContainerEl.classList.add('hidden');
+            } else {
+                const range = effectiveMaxValue - effectiveMinValue;
+                let percentage = 0;
+                if (range > 0) {
+                    percentage = ((myValue - effectiveMinValue) / range) * 100;
+                } else if (effectiveMinValue === effectiveMaxValue) {
+                    percentage = (myValue === effectiveMinValue) ? 100 : 0;
                 }
 
-                // 選択されたタイプ（全レベル）の完全なエンチャントデータを検索
-                const fullEnchantmentData = enchantmentData.find(e =>
-                    e.equipment === selectedEquipment &&
-                    e.name === selectedEnchantmentName
-                );
+                // パーセンテージを強調し、「です。」を削除
+                evaluationMessageEl.innerHTML = `${name} (${selectedEnchantmentLevel}):<br>範囲内の約 <strong class="text-2xl font-bold">${percentage.toFixed(1)}%</strong>`;
+                
+                // 「支配力」や「スキルクールタイム減少」のように0.1単位を使用するエンチャントの場合、表示の小数点以下桁数を調整
+                const fixedDecimalPlaces = decimalDisplayEnchantNames.includes(name) ? 1 : 0;
+                minValueDisplayEl.textContent = `最小値: ${effectiveMinValue.toFixed(fixedDecimalPlaces)}${unit}`;
+                maxValueDisplayEl.textContent = `最大値: ${effectiveMaxValue.toFixed(fixedDecimalPlaces)}${unit}`;
 
-                if (!fullEnchantmentData) {
-                    evaluationMessageEl.innerHTML = 'この組み合わせのデータが見つかりません。<br>正しい装備種別とエンチャント名を選択してください。';
-                    evaluationMessageEl.classList.add('text-red-600');
-                    progressBarContainerEl.classList.add('hidden');
-                    minValueDisplayEl.textContent = '';
-                    maxValueDisplayEl.textContent = '';
-                    individualResultDisplay.classList.remove('hidden');
-                    return;
+                // プログレスバーを更新
+                progressBarEl.style.width = `${percentage}%`;
+                progressBarPercentageText.textContent = `${percentage.toFixed(1)}%`; // バー上にパーセンテージを表示
+                
+                // 背景色に応じてテキストの色を調整（視認性のため）
+                if (percentage < 30) { // グラデーションの左側（赤/オレンジ部分）
+                    progressBarPercentageText.classList.remove('text-white');
+                    progressBarPercentageText.classList.add('text-gray-800'); // 明るい背景には濃いテキスト
+                } else if (percentage > 70) { // グラデーションの右側（緑部分）
+                    progressBarPercentageText.classList.remove('text-gray-800');
+                    progressBarPercentageText.classList.add('text-white'); // 濃い背景には明るいテキスト
+                } else { // 中間部分（黄色っぽい部分、どちらでもあり得る）
+                     progressBarPercentageText.classList.remove('text-white');
+                     progressBarPercentageText.classList.add('text-gray-800');
                 }
-
-                // 累積増加に基づいて選択されたレベルの有効な最小値/最大値を計算
-                const { min: effectiveMinValue, max: effectiveMaxValue } = calculateEffectiveMinMax(fullEnchantmentData, selectedEnchantmentLevel);
-                // 単位と名前を安全に取得（フォールバック付き）
-                const unit = fullEnchantmentData.unit || '';
-                const name = fullEnchantmentData.name || '';
-
-                // 小数点表示が必要なエンチャント名のリスト
-                const decimalDisplayEnchantNames = ['一般モンスター支配力', 'ボスモンスター支配力', 'スキルクールタイム減少'];
-
-
-                if (effectiveMinValue === null || effectiveMaxValue === null || isNaN(effectiveMinValue) || isNaN(effectiveMaxValue)) {
-                    evaluationMessageEl.innerHTML = `${name} (${selectedEnchantmentLevel}):<br>数値範囲は現在不明です。データを確認してください。`;
-                    minValueDisplayEl.textContent = `最小値: 不明`;
-                    maxValueDisplayEl.textContent = `最大値: 不明`;
-                    progressBarContainerEl.classList.add('hidden');
-                } else if (myValue < effectiveMinValue || myValue > effectiveMaxValue) {
-                    evaluationMessageEl.innerHTML = `${name} (${selectedEnchantmentLevel}, ${myValue}${unit}):<br>通常の範囲 (${effectiveMinValue}${unit} - ${effectiveMaxValue}${unit}) から外れています。`;
-                    minValueDisplayEl.textContent = `最小値: ${effectiveMinValue}${unit}`;
-                    maxValueDisplayEl.textContent = `最大値: ${effectiveMaxValue}${unit}`;
-                    progressBarContainerEl.classList.add('hidden');
-                } else {
-                    const range = effectiveMaxValue - effectiveMinValue;
-                    let percentage = 0;
-                    if (range > 0) {
-                        percentage = ((myValue - effectiveMinValue) / range) * 100;
-                    } else if (effectiveMinValue === effectiveMaxValue) {
-                        percentage = (myValue === effectiveMinValue) ? 100 : 0;
-                    }
-
-                    // パーセンテージを強調し、「です。」を削除
-                    evaluationMessageEl.innerHTML = `${name} (${selectedEnchantmentLevel}):<br>範囲内の約 <strong class="text-2xl font-bold">${percentage.toFixed(1)}%</strong>`;
-                    
-                    // 「支配力」や「スキルクールタイム減少」のように0.1単位を使用するエンチャントの場合、表示の小数点以下桁数を調整
-                    const fixedDecimalPlaces = decimalDisplayEnchantNames.includes(name) ? 1 : 0;
-                    minValueDisplayEl.textContent = `最小値: ${effectiveMinValue.toFixed(fixedDecimalPlaces)}${unit}`;
-                    maxValueDisplayEl.textContent = `最大値: ${effectiveMaxValue.toFixed(fixedDecimalPlaces)}${unit}`;
-
-                    // プログレスバーを更新
-                    progressBarEl.style.width = `${percentage}%`;
-                    progressBarPercentageText.textContent = `${percentage.toFixed(1)}%`; // バー上にパーセンテージを表示
-                    
-                    // 背景色に応じてテキストの色を調整（視認性のため）
-                    if (percentage < 30) { // グラデーションの左側（赤/オレンジ部分）
-                        progressBarPercentageText.classList.remove('text-white');
-                        progressBarPercentageText.classList.add('text-gray-800'); // 明るい背景には濃いテキスト
-                    } else if (percentage > 70) { // グラデーションの右側（緑部分）
-                        progressBarPercentageText.classList.remove('text-gray-800');
-                        progressBarPercentageText.classList.add('text-white'); // 濃い背景には明るいテキスト
-                    } else { // 中間部分（黄色っぽい部分、どちらでもあり得る）
-                         progressBarPercentageText.classList.remove('text-white');
-                         progressBarPercentageText.classList.add('text-gray-800');
-                    }
-                    progressBarContainerEl.classList.remove('hidden');
-                }
-                individualResultDisplay.classList.remove('hidden'); // 個別の結果を表示
-            });
+                progressBarContainerEl.classList.remove('hidden');
+            }
+            individualResultDisplay.classList.remove('hidden'); // 個別の結果を表示
         }
 
 
-        // 新しいエンチャント行を追加するボタンのイベントリスナー
-        addEnchantmentButtonLeft.addEventListener('click', addEnchantmentRow);
-        addEnchantmentButtonRight.addEventListener('click', addEnchantmentRow); // 右ボタンにも同様の機能
-
-        // 全てのエンチャントを評価するボタンのイベントリスナー
-        evaluateAllButtonLeft.addEventListener('click', evaluateAllEnchantments);
-        evaluateAllButtonRight.addEventListener('click', evaluateAllEnchantments); // 右ボタンにも同様の機能
-
-
-        // ページ読み込み時に最初の行を初期化
-        window.onload = addEnchantmentRow;
+        // ページ読み込み時に初期の8行を追加
+        window.onload = () => {
+            for (let i = 0; i < 8; i++) {
+                addEnchantmentRow();
+            }
+            // 最初の行をデフォルト選択値で即時評価する（初期表示を整えるため）
+            // 全ての行を初期評価
+            document.querySelectorAll('.enchantment-row').forEach(row => {
+                evaluateSingleEnchantmentRow(row);
+            });
+        };
     </script>
 </body>
 </html>

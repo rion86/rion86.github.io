@@ -3,111 +3,489 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ラテール エンチャント評価（ベータ版）</title>
+    <title>ラテール エンチャント評価</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8;
-            /* フッターが固定されるため、コンテンツが隠れないようにボディの下部に余白を追加 */
-            padding-bottom: 70px; /* フッターの高さに合わせて調整 */
-            padding-top: 20px; /* 上部にも少し余白 */
+            background-color: #f0f4f8; /* 背景色を明るいグレーに */
+            color: #1f2937; /* テキスト色を濃く */
+            padding: 0; /* bodyのパディングをなくす */
+            margin: 0; /* bodyのマージンをなくす */
+            min-height: 100vh; /* 最小高さをビューポートの高さに */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        /* 動的なエンチャント入力行のスタイル */
-        .enchantment-row {
-            border: 1px solid #e2e8f0; /* gray-200 */
-            border-radius: 0.5rem; /* rounded-md */
-            padding: 1.5rem; /* p-6 */
-            margin-bottom: 1rem; /* mb-4 */
-            background-color: #ffffff; /* bg-white */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
-            position: relative; /* 削除ボタンの配置用 */
-            flex: 1 1 auto; /* 行が伸縮し、折り返すように設定 */
-            min-width: 280px; /* 折り返す前の最小幅 */
-            max-width: calc(50% - 0.5rem); /* 広めの画面で2列表示（ギャップ考慮） */
+        /* メインコンテナの調整 */
+        .main-container {
+            width: 100%; /* 画面幅いっぱいに広げる */
+            max-width: 1600px; /* 必要に応じてさらに最大幅を広げても良い */
+            margin: 0 auto; /* 中央寄せを維持 */
+            padding: 0.5rem 1.5rem; /* パディングを調整 (上部をさらに減らした) */
+            background-color: #ffffff; /* カードの背景色を白に */
+            border-radius: 0.75rem; /* 角を以前の丸さに */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* シャドウを以前の薄さに */
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 70px - 40px); /* フッターと上部余白を考慮 */
         }
-        @media (min-width: 640px) { /* smブレークポイント */
-            .enchantment-row {
-                max-width: calc(50% - 0.5rem); /* 2列 */
-            }
-        }
-        @media (min-width: 768px) { /* mdブレークポイント */
-            .enchantment-row {
-                max-width: calc(33.333% - 0.666rem); /* 3列 */
-            }
-        }
-        @media (min-width: 1024px) { /* lgブレークポイント */
-            .enchantment-row {
-                max-width: calc(25% - 0.75rem); /* 4列 */
+        @media (min-width: 1024px) {
+            .main-container {
+                padding: 1rem 2rem; /* デスクトップでのパディング (上部をさらに減らした) */
             }
         }
 
-        .enchantment-row select,
-        .enchantment-row input[type="number"] {
-            margin-top: 0.25rem; /* mt-1 */
-            display: block; /* block */
-            width: 100%; /* w-full */
-            padding-left: 0.75rem; /* pl-3 */
-            padding-right: 2.5rem; /* pr-10 */
-            padding-top: 0.5rem; /* py-2 */
-            padding-bottom: 0.5rem; /* py-2 */
-            font-size: 1rem; /* text-base */
-            border-width: 1px; /* border */
-            border-color: #d1d5db; /* border-gray-300 */
-            outline: none; /* focus:outline-none */
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
-            border-radius: 0.375rem; /* rounded-md */
-            transition: all 0.15s ease-in-out;
+        /* ヘッダーエリアの調整 */
+        .header-area {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* 左寄せ */
+            width: 100%;
+            margin-bottom: 0.8rem; /* マージンをさらに減らした */
         }
-        .enchantment-row select:focus,
-        .enchantment-row input[type="number"]:focus {
-            border-color: #3b82f6; /* focus:border-blue-500 */
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* focus:ring-blue-500 focus:ring-opacity-75 */
+        @media (min-width: 640px) {
+            .header-area {
+                flex-direction: row;
+                justify-content: space-between; /* タイトルとタブを左右に配置 */
+                align-items: center;
+                margin-bottom: 1rem; /* マージンをさらに減らした */
+            }
         }
-        .remove-enchantment-button {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            background: none;
-            border: none;
+
+        /* サイトタイトル */
+        .site-title {
+            font-size: 0.9rem; /* さらに小さく */
+            font-weight: 700; /* font-bold */
+            color: #1f2937; /* タイトル色を濃く */
+            margin-bottom: 0.8rem; /* タブとの間隔を減らした */
+            text-align: left; /* 左寄せ */
+            padding-left: 0.5rem; /* 左側に少し余白 */
+        }
+        @media (min-width: 640px) {
+            .site-title {
+                font-size: 1.25rem; /* sm:text-4xlをさらに小さく */
+                margin-bottom: 0; /* 横並びの時はマージン不要 */
+            }
+        }
+
+        /* 装備種類タブとリセットボタンのコンテナ */
+        .header-right-controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem; /* タブとリセットボタン間のスペース */
+            flex-wrap: wrap; /* 小さい画面で折り返す */
+            justify-content: flex-end; /* 右寄せ */
+            padding-right: 0.5rem; /* 右側に少し余白 */
+        }
+
+        /* 装備種別タブのスタイル */
+        .equipment-tabs-container {
+            display: flex;
+            flex-wrap: wrap; /* 小さい画面で折り返す */
+            gap: 0.5rem; /* ボタン間のスペースを少し小さく */
+        }
+        .equipment-tabs-container button {
+            padding: 0.6rem 1.2rem; /* パディングを元に */
+            border-radius: 0.5rem; /* 角を元に */
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: 1px solid transparent; /* 境界線を元に */
+            box-shadow: none; /* ボタンのシャドウをなくす */
+            font-size: 0.9rem; /* 少し小さく */
+        }
+        .equipment-tabs-container button.active {
+            background-color: #3b82f6; /* blue-500 */
+            color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* アクティブ時のみシャドウ */
+        }
+        .equipment-tabs-container button:not(.active) {
+            background-color: #e5e7eb; /* gray-200 */
+            color: #4b5563; /* gray-700 */
+            border-color: #d1d5db; /* gray-300 */
+        }
+        .equipment-tabs-container button:not(.active):hover {
+            background-color: #d1d5db; /* gray-300 */
+            color: #1f2937; /* gray-900 */
+        }
+
+        /* リセットボタンのスタイル */
+        .reset-button {
+            background-color: #ef4444; /* red-500 */
+            color: #ffffff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: 1px solid transparent;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 0.9rem;
+            margin-left: 1rem; /* タブとの間隔 */
+        }
+        .reset-button:hover {
+            background-color: #dc2626; /* red-600 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 一括変更ドロップダウンのスタイル */
+        .batch-level-control {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-left: 1rem;
+        }
+        .batch-level-control label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #4b5563;
+        }
+        .batch-level-select {
+            width: 60px; /* Lv欄と同じ幅 */
+            padding: 0.6rem 0.8rem; /* Lv欄と同じパディング */
+            background-color: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            color: #1f2937;
+            font-size: 1rem; /* Lv欄と同じフォントサイズ */
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%234b5563" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 0.2rem center;
+            background-size: 0.7rem;
+            padding-right: 1.1rem;
             cursor: pointer;
         }
+        .batch-level-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
 
-        /* 固定フッターのスタイル */
-        .site-footer {
-            position: fixed; /* 画面に固定 */
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: #e2e8f0; /* フッターの背景色（薄いグレー） */
-            padding: 5px 10px; /* 上下左右のパディングをさらに小さく */
+
+        /* メインコンテンツエリアのレイアウト */
+        .content-area {
             display: flex;
-            flex-direction: column; /* 小さい画面では縦並び */
+            flex-direction: column; /* デフォルトは縦並び */
+            gap: 1.5rem; /* セクション間のスペース */
+            flex-grow: 1; /* 残りのスペースを埋める */
+        }
+        @media (min-width: 1024px) { /* lgブレークポイントで横並び */
+            .content-area {
+                flex-direction: row;
+                margin-top: -1rem; /* パネルをさらに上へ移動 */
+            }
+        }
+
+        /* 左側の入力パネル */
+        .input-panel {
+            flex: 1;
+            background-color: #ffffff; /* 背景色を白に */
+            border-radius: 0.75rem; /* 角を元に */
+            padding: 1.2rem; /* パディングを統一 (以前のevaluation-panelと同じに) */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* シャドウを元に */
+            overflow-y: auto; /* 多数のエンチャント行に対応 */
+            max-height: calc(100vh - 250px); /* 画面高さに合わせて最大高さを制限 */
+            min-width: 320px; /* 最小幅を設定 */
+            scrollbar-gutter: stable; /* スクロールバーのスペースを安定させる */
+        }
+        @media (min-width: 1024px) {
+            .input-panel {
+                /* デスクトップでの高さ調整 */
+                max-height: calc(100vh - 180px);
+            }
+        }
+
+        /* 右側の評価表示パネル */
+        .evaluation-panel {
+            flex: 1.2; /* 入力パネルよりやや広く */
+            background-color: #ffffff; /* 背景色を白に */
+            border-radius: 0.75rem; /* 角を元に */
+            padding: 1.2rem; /* パディングを統一 (input-panelと同じに) */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* シャドウを元に */
+            display: flex;
+            flex-direction: column;
+            /* gap: 1.2rem; */ /* 各行のマージンで調整するため削除 */
+            overflow-y: auto; /* 多数の評価結果に対応 */
+            max-height: calc(100vh - 250px); /* 画面高さに合わせて最大高さを制限 */
+            min-width: 280px; /* 最小幅を設定 */
+            scrollbar-gutter: stable; /* スクロールバーのスペースを安定させる */
+        }
+        @media (min-width: 1024px) {
+            .evaluation-panel {
+                /* デスクトップでの高さ調整 */
+                max-height: calc(100vh - 180px);
+            }
+        }
+
+        /* エンチャント入力行のスタイル */
+        .enchantment-row {
+            background-color: #f9fafb; /* 行の背景色をより明るく (gray-50) */
+            border: 1px solid #e2e8f0; /* 境界線を元に (gray-200) */
+            border-radius: 0.5rem; /* 角を元に */
+            padding: 0.75rem; /* パディングを統一 */
+            margin-bottom: 0.75rem; /* スペースを統一 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); /* シャドウを元に */
+            position: relative;
+            display: flex; /* Flexboxで配置 */
+            align-items: center; /* 垂直中央揃え */
+            gap: 0.5rem; /* 各要素間の隙間を統一して設ける */
+            /* min-height はJSで動的に設定するためここではコメントアウト */
+            /* min-height: 62px; */ /* 左右の行の高さ合わせ (以前の設定) */
+            box-sizing: border-box; /* paddingとborderを高さに含める */
+        }
+        
+        /* Lv選択ドロップダウンとエンチャ名ドロップダウンのグループ */
+        .enchant-level-name-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem; /* Lvとエンチャ名の間隔を設ける */
+            flex-grow: 1; /* スペースを埋める */
+        }
+
+        /* Lv選択ドロップダウン */
+        .enchantment-level-select {
+            width: 70px; /* Lv欄の幅を調整 (少し大きく) */
+            padding: 0.6rem 0.8rem; /* エンチャ数値入力と同じパディング */
+            background-color: #ffffff; /* 白い背景 */
+            border: 1px solid #d1d5db; /* 境界線 */
+            border-radius: 0.375rem;
+            color: #1f2937; /* 濃いテキスト色 */
+            font-size: 1rem; /* エンチャ数値入力と同じフォントサイズ */
+            appearance: none; /* デフォルトの矢印を非表示 */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%234b5563" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 0.2rem center;
+            background-size: 0.7rem;
+            padding-right: 1.1rem;
+            cursor: pointer;
+        }
+        .enchantment-level-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+
+        /* エンチャ名ドロップダウン */
+        .enchantment-name-select {
+            flex-grow: 1; /* 残りのスペースを埋める */
+            padding: 0.6rem 0.8rem; /* エンチャ数値入力と同じパディング */
+            background-color: #ffffff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 1rem; /* エンチャ数値入力と同じフォントサイズ */
+            outline: none;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            appearance: none; /* デフォルトの矢印を非表示 */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%234b5563" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* 矢印の色も濃く */
+            background-repeat: no-repeat;
+            background-position: right 0.5rem center; /* 矢印の位置調整 */
+            background-size: 0.7rem; /* 矢印のサイズ調整 */
+            padding-right: 1.6rem; /* 矢印分のスペース */
+        }
+        .enchantment-name-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+
+        /* エンチャント数値入力欄 */
+        .my-enchantment-value-input {
+            flex-basis: 130px; /* 横幅を調整 (少し大きく) */
+            max-width: 160px; /* 必要に応じて最大幅を設定 (少し大きく) */
+            flex-grow: 0; /* スペースがあれば広がる */
+            flex-shrink: 0; /* 縮小しない */
+            padding: 0.6rem 0.8rem; /* パディングを調整 (大きく) */
+            background-color: #ffffff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 1rem; /* 大きく */
+            outline: none;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            text-align: right; /* 右寄せ */
+            /* スピナーボタンを非表示にするCSS */
+            -moz-appearance: textfield; /* Firefox */
+        }
+        /* Chrome, Safari, Edge, Opera */
+        .my-enchantment-value-input::-webkit-outer-spin-button,
+        .my-enchantment-value-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .my-enchantment-value-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+        
+        /* ラベルのスタイル (引き続き非表示) */
+        .enchantment-row label {
+            display: none; 
+        }
+
+        /* 評価表示のスタイル（右側のパネル内） */
+        .individual-result-display {
+            background-color: #f9fafb; /* 行の背景色と合わせる (gray-50) */
+            border: 1px solid #e2e8f0; /* 境界線を元に (gray-200) */
+            border-radius: 0.5rem;
+            padding: 0.75rem; /* .enchantment-row と同じパディングに統一 */
+            margin-bottom: 0.75rem; /* .enchantment-row と同じマージンに統一 */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            color: #374151; /* テキスト色を濃く */
+            display: flex; /* Flexboxで配置 */
+            flex-direction: column; /* 縦並び */
+            align-items: center; /* 中央揃え */
+            justify-content: center; /* コンテンツを中央揃え */
+            /* min-height はJSで動的に設定するためここではコメントアウト */
+            /* min-height: 62px; */ /* 左右の行の高さ合わせ (以前の設定) */
+            box-sizing: border-box; /* paddingとborderを高さに含める */
+        }
+        /* === 内部要素のマージン調整 === */
+        .individual-result-display .evaluation-message {
+            font-size: 0.9rem; /* 少し大きく */
+            font-weight: 600;
+            margin-bottom: 0.2rem; /* 小さな下マージン */
+            color: #1f2937; /* テキスト色を濃く */
+            white-space: nowrap; /* テキストの折り返しを防ぐ */
+            overflow: hidden; /* はみ出したテキストを非表示 */
+            text-overflow: ellipsis; /* はみ出したテキストを...で表示 */
+            line-height: 1.2; /* 明示的な行の高さ */
+        }
+        .individual-result-display .progress-bar-container {
+            height: 18px; /* プログレスバーの高さを小さく */
+            background-color: #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1px solid #d1d5db;
+            width: 95%; /* バーの幅を少し広げる */
+            position: relative; /* 子要素のabsolute配置の基準 */
+            margin-top: 0.2rem; /* 小さな上マージン */
+            margin-bottom: 0.2rem; /* 小さな下マージン */
+            box-sizing: border-box; /* paddingとborderを高さに含める */
+        }
+        .individual-result-display .progress-bar {
+            height: 100%;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.85rem; /* バー上のテキストサイズを調整 (少し大きく) */
+            transition: all 0.5s ease-in-out;
+        }
+        /* ゲージ上のパーセンテージテキスト */
+        .individual-result-display .progress-percentage-text {
+            color: #ffffff; /* 白色に統一 */
+            font-weight: bold; /* boldにする */
+            position: absolute; /* ゲージの中央に配置 */
+            width: 100%;
+            text-align: center;
+            font-size: 0.9rem; /* さらに大きく */
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9); /* さらに濃い影を追加して見やすく */
+        }
+
+        .individual-result-display .min-value-display,
+        .individual-result-display .max-value-display {
+            font-size: 0.6rem; /* さらに小さく */
+            color: #6b7280;
+            margin-top: 0.2rem; /* 小さな上マージン */
+            line-height: 1.2; /* 明示的な行の高さ */
+        }
+
+        /* フッターのテキスト色を調整 */
+        .site-footer {
+            background-color: #e2e8f0;
+            padding: 5px 10px;
+            font-size: 0.6rem;
+            color: #6b7280;
+            border-top: 1px solid #cbd5e0;
+            width: 100%; /* 全幅に */
+            display: flex;
+            flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.6rem; /* テキストサイズをさらに小さく */
-            color: #6b7280; /* テキスト色をグレーに */
-            border-top: 1px solid #cbd5e0; /* 上部に細い境界線 */
-            z-index: 1000; /* 他のコンテンツの上に表示されるように */
+            z-index: 1000;
+            margin-top: auto; /* フッターを一番下に固定 */
         }
         @media (min-width: 640px) {
             .site-footer {
-                flex-direction: row; /* 広い画面では横並び */
+                flex-direction: row;
             }
+        }
+        .site-footer p {
+            color: #6b7280;
+        }
+        .site-footer a {
+            color: #2563eb; /* blue-600 */
+        }
+
+        /* 評価パネルのタイトル（削除されたため、スタイルも非表示に） */
+        .evaluation-panel h2 {
+            display: none; /* 「結果」見出しを非表示にする */
+        }
+        
+        /* スクロールバーのスタイル（元に戻す） */
+        ::-webkit-scrollbar {
+            width: 8px; /* 細く */
+        }
+        ::-webkit-scrollbar-track {
+            background: #f0f4f8; /* トラックの色 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e0; /* サムの色 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0; /* ホバー時の色 */
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-start p-4">
-    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-7xl border border-gray-200 mb-6">
-        <h1 class="text-xl font-bold text-center text-gray-800 mb-6">ラテール<br>エンチャント評価（ベータ版）</h1>
+<body class="min-h-screen flex flex-col items-center justify-start">
+    <div class="main-container">
+        <div class="header-area">
+            <h1 class="site-title">ラテール エンチャント評価</h1>
 
-        <div id="enchantmentInputsContainer" class="flex flex-wrap gap-4 mb-6">
-            <!-- エンチャント入力行はここに動的に追加されます -->
+            <div class="header-right-controls">
+                <div class="equipment-tabs-container">
+                    <!-- 新しい並び順でタブボタンを配置 -->
+                    <button id="tabWeapon" class="active" data-equipment-type="武器">武器</button>
+                    <button id="tabSpiritStone" data-equipment-type="精霊石">精霊石</button>
+                    <button id="tabArmor" data-equipment-type="防具">防具</button>
+                    <button id="tabAccessory" data-equipment-type="アクセサリー">アクセサリー</button>
+                </div>
+                <div class="batch-level-control">
+                    <label for="batchLevelSelect">Lv一括変更:</label>
+                    <select id="batchLevelSelect" class="batch-level-select">
+                        <option value="Lv2">Lv2</option>
+                        <option value="Lv3">Lv3</option>
+                        <option value="Lv4">Lv4</option>
+                    </select>
+                </div>
+                <button id="resetButton" class="reset-button">リセット</button>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="input-panel" id="enchantmentInputsContainer">
+                </div>
+
+            <div class="evaluation-panel" id="evaluationResultsContainer">
+                </div>
         </div>
     </div>
 
-    <!-- 著作権表示と開発者メッセージの固定フッター -->
     <div class="site-footer">
         <div class="text-left mb-2 sm:mb-0">
             <p>一部をAIで作成した為計算に間違いがある可能性があります。</p>
@@ -122,17 +500,17 @@
     <script>
         // ユーザーが提供した生データ文字列
         const rawDataString = `
-エンチャントID (シート1のIDと連携),エンチャント名 (シート1から参照),"装備種別 (武器, 防具, アクセサリー)","エンチャントレベル (Lv1, Lv2, Lv3, Lv4)",最小値,最大値,追加エンチャント補正率  (該当しない場合は空欄)（通常エンチャントの数値から80%減少する）（Lv3とLV4にはこの仕様は存在しない）,単位,備考と注意事項 (Lv3/4のエンチャントは全て共通)（エンチャントには全てLv1が存在するが全て1％または1となります）
+エンチャントID (シート1のIDと連携),エンチャント名 (シート1から参照),"装備種別 (武器, 防具, アクセサリー)","エンチャントレベル (Lv1, Lv2, Lv3, Lv4)",最小値,最大値,追加エンチャント補正率 (該当しない場合は空欄)（通常エンチャントの数値から80%減少する）（Lv3とLV4にはこの仕様は存在しない）,単位,備考と注意事項 (Lv3/4のエンチャントは全て共通、同数値になる。)（エンチャントには全てLv1が存在するが全て1％または1となります、支配力系とスキルクールタイム減少は例外的に0.1になります。）
 4,全ステータス,防具,Lv2,1,16000,,固定値,
 4,全ステータス,防具,Lv3,1200,2400,,固定値,Lv4も同数値
 4,全ステータス,防具,Lv4,1200,2400,,固定値,Lv3も同数値
 5,全ステータス（％）,防具,Lv2,1,18,,％,
 5,全ステータス（％）,防具,Lv3,1,3,,％,Lv4も同数値
 5,全ステータス（％）,防具,Lv4,1,3,,％,Lv3も同数値
-1,クリティカルダメージ,防具（ブーツ）,Lv2,1,150,,％,
-1,クリティカルダメージ,防具（ブーツ）,Lv3,11,23,,％,Lv4も同数値
-1,クリティカルダメージ,防具（ブーツ）,Lv4,11,23,,％,Lv3も同数値
-2,最大ダメージ,防具,Lv2,1,100,,％,
+26,クリティカルダメージ（ブーツ）,防具,Lv2,1,150,120,％,
+26,クリティカルダメージ（ブーツ）,防具,Lv3,11,23,,％,Lv4も同数値
+26,クリティカルダメージ（ブーツ）,防具,Lv4,11,23,,％,Lv3も同数値
+2,最大ダメージ,防具,Lv2,1,100,80,％,
 2,最大ダメージ,防具,Lv3,7,15,,％,
 2,最大ダメージ,防具,Lv4,7,15,,％,
 6,武器攻撃力/属性（％）,防具,Lv2,1,15,,％,
@@ -141,69 +519,69 @@
 7,武器攻撃力/属性,防具,Lv2,1,170,,固定値,
 7,武器攻撃力/属性,防具,Lv3,12,25,,固定値,
 7,武器攻撃力/属性,防具,Lv4,12,25,,固定値,
-16,ボスモンスター支配力,防具（グローブ）,Lv2,0.1,4.0,,％,支配力は0.1刻みになる
-16,ボスモンスター支配力,防具（グローブ）,Lv3,0.3,0.6,,％,支配力は0.1刻みになる
-16,ボスモンスター支配力,防具（グローブ）,Lv4,0.3,0.6,,％,支配力は0.1刻みになる
-1,クリティカルダメージ,アクセサリー,Lv2,1,70,,％,
+16,ボスモンスター支配力,防具,Lv2,0.1,4.0,,％,支配力は0.1刻みになる
+16,ボスモンスター支配力,防具,Lv3,0.3,0.6,,％,支配力は0.1刻みになる
+16,ボスモンスター支配力,防具,Lv4,0.3,0.6,,％,支配力は0.1刻みになる
+1,クリティカルダメージ,アクセサリー,Lv2,1,70,56,％,
 1,クリティカルダメージ,アクセサリー,Lv3,5,10,,％,
 1,クリティカルダメージ,アクセサリー,Lv4,5,10,,％,
-2,最大ダメージ,アクセサリー,Lv2,1,70,,％,
+2,最大ダメージ,アクセサリー,Lv2,1,70,56,％,
 2,最大ダメージ,アクセサリー,Lv3,5,10,,％,
 2,最大ダメージ,アクセサリー,Lv4,5,10,,％,
-3,最小ダメージ,アクセサリー,Lv2,1,70,,％,
+3,最小ダメージ,アクセサリー,Lv2,1,70,56,％,
 3,最小ダメージ,アクセサリー,Lv3,5,10,,％,
 3,最小ダメージ,アクセサリー,Lv4,5,10,,％,
-7,武器攻撃力/属性,アクセサリー,Lv2,1,160,,固定値,
+7,武器攻撃力/属性,アクセサリー,Lv2,1,160,128,固定値,
 7,武器攻撃力/属性,アクセサリー,Lv3,12,24,,固定値,
 7,武器攻撃力/属性,アクセサリー,Lv4,12,24,,固定値,
-4,全ステータス,アクセサリー,Lv2,1,11000,,固定値,
+4,全ステータス,アクセサリー,Lv2,1,11000,8800,固定値,
 4,全ステータス,アクセサリー,Lv3,800,1700,,固定値,
 4,全ステータス,アクセサリー,Lv4,800,1700,,固定値,
-5,全ステータス（％）,アクセサリー,Lv2,1,12,,％,
+5,全ステータス（％）,アクセサリー,Lv2,1,12,10,％,
 5,全ステータス（％）,アクセサリー,Lv3,1,2,,％,
 5,全ステータス（％）,アクセサリー,Lv4,1,2,,％,
-18,最大HP（％）,アクセサリー,Lv2,1,7,,％,
+18,最大HP（％）,アクセサリー,Lv2,1,7,6,％,
 18,最大HP（％）,アクセサリー,Lv3,1,2,,％,
 18,最大HP（％）,アクセサリー,Lv4,1,2,,％,
-19,スキルクールタイム減少,アクセサリー,Lv2,0.1,5.0,,％,0.1計算になる
+19,スキルクールタイム減少,アクセサリー,Lv2,0.1,5.0,4,％,0.1計算になる
 19,スキルクールタイム減少,アクセサリー,Lv3,0.4,0.8,,％,0.1計算になる
 19,スキルクールタイム減少,アクセサリー,Lv4,0.4,0.8,,％,0.1計算になる
-6,武器攻撃力/属性（％）,アクセサリー,Lv2,1,10,,％,
+6,武器攻撃力/属性（％）,アクセサリー,Lv2,1,10,8,％,
 6,武器攻撃力/属性（％）,アクセサリー,Lv3,1,2,,％,
 6,武器攻撃力/属性（％）,アクセサリー,Lv4,1,2,,％,
-21,一般モンスター追加ダメージ（％）,アクセサリー,Lv2,1,7,,％,
+21,一般モンスター追加ダメージ（％）,アクセサリー,Lv2,1,7,6,％,
 21,一般モンスター追加ダメージ（％）,アクセサリー,Lv3,1,2,,％,
 21,一般モンスター追加ダメージ（％）,アクセサリー,Lv4,1,2,,％,
-23,ボスモンスター追加ダメージ（％）,アクセサリー,Lv2,1,7,,％,
+23,ボスモンスター追加ダメージ（％）,アクセサリー,Lv2,1,7,6,％,
 23,ボスモンスター追加ダメージ（％）,アクセサリー,Lv3,1,2,,％,
 23,ボスモンスター追加ダメージ（％）,アクセサリー,Lv4,1,2,,％,
-24,貫通力,アクセサリー,Lv2,1,40,,％,
+24,貫通力,アクセサリー,Lv2,1,40,32,％,
 24,貫通力,アクセサリー,Lv3,3,6,,％,
 24,貫通力,アクセサリー,Lv4,3,6,,％,
-11,筋力/魔法力,アクセサリー,Lv2,1,14000,,固定値,
+11,筋力/魔法力,アクセサリー,Lv2,1,14000,11200,固定値,
 11,筋力/魔法力,アクセサリー,Lv3,1000,2100,,固定値,
 11,筋力/魔法力,アクセサリー,Lv4,1000,2100,,固定値,
-12,体力,アクセサリー,Lv2,1,14000,,固定値,
+12,体力,アクセサリー,Lv2,1,14000,11200,固定値,
 12,体力,アクセサリー,Lv3,1000,2100,,固定値,
 12,体力,アクセサリー,Lv4,1000,2100,,固定値,
-3,最小ダメージ,防具,Lv2,1,100,,％,
+3,最小ダメージ,防具,Lv2,1,100,80,％,
 3,最小ダメージ,防具,Lv3,7,15,,％,
 3,最小ダメージ,防具,Lv4,7,15,,％,
-13,物理/魔法追加ダメージ,アクセサリー,Lv2,1,30000,,固定値,
+13,物理/魔法追加ダメージ,アクセサリー,Lv2,1,30000,24000,固定値,
 13,物理/魔法追加ダメージ,アクセサリー,Lv3,2200,4500,,固定値,
 13,物理/魔法追加ダメージ,アクセサリー,Lv4,2200,4500,,固定値,
-14,物理/魔法追加ダメージ（％）,アクセサリー,Lv2,1,7,,％,
+14,物理/魔法追加ダメージ（％）,アクセサリー,Lv2,1,7,6,％,
 14,物理/魔法追加ダメージ（％）,アクセサリー,Lv3,1,2,,％,
 14,物理/魔法追加ダメージ（％）,アクセサリー,Lv4,1,2,,％,
 1,クリティカルダメージ,武器,Lv2,1,150,,％,
-1,クリティカルダメージ,武器,Lv3,1,23,,％,
-1,クリティカルダメージ,武器,Lv4,1,23,,％,
-2,最大ダメージ,武器,Lv2,1,250,,％,
-2,最大ダメージ,武器,Lv3,19,38,,％,Lv3と4は数字が間違っている可能性あり
-2,最大ダメージ,武器,Lv4,19,38,,％,
-3,最小ダメージ,武器,Lv2,1,250,,％,
-3,最小ダメージ,武器,Lv3,19,38,,％,
-3,最小ダメージ,武器,Lv4,19,38,,％,
+1,クリティカルダメージ,武器,Lv3,18,18,,％,
+1,クリティカルダメージ,武器,Lv4,18,18,,％,
+2,最大ダメージ,武器,Lv2,1,220,,％,
+2,最大ダメージ,武器,Lv3,26,26,,％,
+2,最大ダメージ,武器,Lv4,26,26,,％,
+3,最小ダメージ,武器,Lv2,1,250,220,％,
+3,最小ダメージ,武器,Lv3,30,30,,％,
+3,最小ダメージ,武器,Lv4,30,30,,％,
 6,武器攻撃力/属性（％）,武器,Lv2,1,14,,％,
 6,武器攻撃力/属性（％）,武器,Lv3,1,2,,％,
 6,武器攻撃力/属性（％）,武器,Lv4,1,2,,％,
@@ -211,17 +589,17 @@
 5,全ステータス（％）,武器,Lv3,1,2,,％,
 5,全ステータス（％）,武器,Lv4,1,2,,％,
 11,筋力/魔法力,武器,Lv2,1,22000,,固定値,
-11,筋力/魔法力,武器,Lv3,1600,3300,,固定値,
-11,筋力/魔法力,武器,Lv4,1600,3300,,固定値,
+11,筋力/魔法力,武器,Lv3,2600,2600,,固定値,
+11,筋力/魔法力,武器,Lv4,2600,2600,,固定値,
 24,貫通力,武器,Lv2,1,50,,％,
-24,貫通力,武器,Lv3,4,8,,％,電卓計算な為間違っている可能性あり
-24,貫通力,武器,Lv4,4,8,,％,
+24,貫通力,武器,Lv3,6,6,,％,
+24,貫通力,武器,Lv4,6,6,,％,
 4,全ステータス,武器,Lv2,1,18000,,固定値,
-4,全ステータス,武器,Lv3,1300,2700,,固定値,
-4,全ステータス,武器,Lv4,1300,2700,,固定値,
+4,全ステータス,武器,Lv3,2200,2200,,固定値,
+4,全ステータス,武器,Lv4,2000,2200,,固定値,
 13,物理/魔法追加ダメージ,武器,Lv2,1,25000,,固定値,
-13,物理/魔法追加ダメージ,武器,Lv3,1900,3800,,固定値,
-13,物理/魔法追加ダメージ,武器,Lv4,1900,3800,,固定値,
+13,物理/魔法追加ダメージ,武器,Lv3,3000,3000,,固定値,
+13,物理/魔法追加ダメージ,武器,Lv4,3000,3000,,固定値,
 14,物理/魔法追加ダメージ（％）,武器,Lv2,1,10,,％,
 14,物理/魔法追加ダメージ（％）,武器,Lv3,1,2,,％,
 14,物理/魔法追加ダメージ（％）,武器,Lv4,1,2,,％,
@@ -231,12 +609,12 @@
 23,ボスモンスター追加ダメージ（％）,武器,Lv2,1,10,,％,
 23,ボスモンスター追加ダメージ（％）,武器,Lv3,1,2,,％,
 23,ボスモンスター追加ダメージ（％）,武器,Lv4,1,2,,％,
-15,一般モンスター支配力,防具（ヘルム）,Lv2,0.1,4.0,,％,支配力は0.1刻みになる
-15,一般モンスター支配力,防具（ヘルム）,Lv3,0.3,0.6,,％,支配力は0.1刻みになる
-15,一般モンスター支配力,防具（ヘルム）,Lv4,0.3,0.6,,％,支配力は0.1刻みになる
-9,移動速度,防具（ブーツ）,Lv2,1,150,,％,
-9,移動速度,防具（ブーツ）,Lv3,11,23,,％,
-9,移動速度,防具（ブーツ）,Lv4,11,23,,％,
+15,一般モンスター支配力,防具,Lv2,0.1,4.0,,％,支配力は0.1刻みになる
+15,一般モンスター支配力,防具,Lv3,0.3,0.6,,％,支配力は0.1刻みになる
+15,一般モンスター支配力,防具,Lv4,0.3,0.6,,％,支配力は0.1刻みになる
+9,移動速度,防具,Lv2,1,150,,％,
+9,移動速度,防具,Lv3,11,23,,％,
+9,移動速度,防具,Lv4,11,23,,％,
 11,筋力/魔法力,防具,Lv2,1,20000,,固定値,
 11,筋力/魔法力,防具,Lv3,1500,3000,,固定値,
 11,筋力/魔法力,防具,Lv4,1500,3000,,固定値,
@@ -252,43 +630,83 @@
 14,物理/魔法追加ダメージ（％）,防具,Lv2,1,10,,％,
 14,物理/魔法追加ダメージ（％）,防具,Lv3,1,2,,％,
 14,物理/魔法追加ダメージ（％）,防具,Lv4,1,2,,％,
+8,命中率,防具,Lv2,1,150,,％,
+8,命中率,防具,Lv3,11,23,,％,
+8,命中率,防具,Lv4,11,23,,％,
+2,最大ダメージ,精霊石,Lv2,1,120,,％,
+2,最大ダメージ,精霊石,Lv3,14,14,,％,
+2,最大ダメージ,精霊石,Lv4,14,14,,％,
+3,最小ダメージ,精霊石,Lv2,1,150,,％,
+3,最小ダメージ,精霊石,Lv3,18,18,,％,
+3,最小ダメージ,精霊石,Lv4,18,18,,％,
+8,命中率,精霊石,Lv2,1,50,,％,
+8,命中率,精霊石,Lv3,6,6,,％,
+8,命中率,精霊石,Lv4,6,6,,％,
+10,筋力/魔法力（％）,精霊石,Lv2,1,9,,％,
+10,筋力/魔法力（％）,精霊石,Lv3,1,1,,％,
+10,筋力/魔法力（％）,精霊石,Lv4,1,1,,％,
+7,武器攻撃力/属性,精霊石,Lv2,1,150,,％,
+7,武器攻撃力/属性,精霊石,Lv3,18,18,,％,
+7,武器攻撃力/属性,精霊石,Lv4,18,18,,％,
+11,筋力/魔法力,精霊石,Lv2,1,14000,,固定値,
+11,筋力/魔法力,精霊石,Lv3,1700,1700,,固定値,
+11,筋力/魔法力,精霊石,Lv4,1700,1700,,固定値,
+4,全ステータス,精霊石,Lv2,1,11000,,固定値,
+4,全ステータス,精霊石,Lv3,1300,1300,,固定値,
+4,全ステータス,精霊石,Lv4,1300,1300,,固定値,
+18,最大HP（％）,精霊石,Lv2,1,10,,％,
+18,最大HP（％）,精霊石,Lv3,1,1,,％,
+18,最大HP（％）,精霊石,Lv4,1,1,,％,
+14,物理/魔法追加ダメージ（％）,精霊石,Lv2,1,9,,％,
+14,物理/魔法追加ダメージ（％）,精霊石,Lv3,1,1,,％,
+14,物理/魔法追加ダメージ（％）,精霊石,Lv4,1,1,,％,
+13,物理/魔法追加ダメージ,精霊石,Lv2,1,20000,,固定値,
+13,物理/魔法追加ダメージ,精霊石,Lv3,2400,2400,,固定値,
+13,物理/魔法追加ダメージ,精霊石,Lv4,2400,2400,,固定値,
+20,一般モンスター追加ダメージ,精霊石,Lv2,1,23000,,固定値,
+20,一般モンスター追加ダメージ,精霊石,Lv3,2800,2800,,固定値,
+20,一般モンスター追加ダメージ,精霊石,Lv4,2800,2800,,固定値,
+22,ボスモンスター追加ダメージ,精霊石,Lv2,1,23000,,固定値,
+22,ボスモンスター追加ダメージ,精霊石,Lv3,2800,2800,,固定値,
+22,ボスモンスター追加ダメージ,精霊石,Lv4,2800,2800,,固定値,
 `;
 
         // Function to parse the raw data string into a structured JavaScript array
         function parseEnchantmentData(rawDataString) {
-            const lines = rawDataString.trim().split('\n').slice(1); // ヘッダー行をスキップ
+            const lines = rawDataString.trim().split('\n').slice(1); // Skip header row
             const parsedData = {};
 
-            // 小数点があるLv1基礎値を持つエンチャント名のリスト
+            // List of enchantment names that have a decimal base value for Lv1
             const decimalBaseEnchantNames = ['一般モンスター支配力', 'ボスモンスター支配力', 'スキルクールタイム減少'];
 
             lines.forEach(line => {
                 const parts = line.split(',');
-                // 不完全な行はスキップ
+                // Skip malformed lines
                 if (parts.length < 9) {
                     console.warn('Skipping malformed line:', line);
                     return;
                 }
 
                 const id = parseInt(parts[0]);
-                let name = parts[1].trim(); // エンチャント名
-                let equipment = parts[2].trim(); // 装備種別
-                const level = parts[3].trim(); // レベル
+                const name = parts[1].trim(); // Enchantment Name - use directly now
+                let equipment = parts[2].trim(); // Equipment Type
+                const level = parts[3].trim(); // Level
                 const minVal = parts[4].trim() === '?' || parts[4].trim() === '' ? null : parseFloat(parts[4]);
                 const maxVal = parts[5].trim() === '?' || parts[5].trim() === '' ? null : parseFloat(parts[5]);
-                // 追加エンチャント補正率の列 (parts[6]) は今回は使用しません
-                const unit = parts[7].trim(); // 単位
+                // parts[6] is "追加エンチャント補正率" and is ignored, as requested.
+                const unit = parts[7].trim(); // Unit
 
-                // 装備種別の統合
+                // Convert specific '防具（...）' to '防具'
                 if (equipment.includes('防具（')) {
-                    // クリティカルダメージ（ブーツ）は特別な名称にする
-                    if (equipment === '防具（ブーツ）' && name === 'クリティカルダメージ') {
-                        name = 'クリティカルダメージ（ブーツ）';
-                    }
-                    equipment = '防具'; // 他の防具は「防具」に統合
+                    equipment = '防具';
                 }
 
                 const key = `${equipment}-${name}`;
+
+                // Skip "体力" enchantments for "防具" and "アクセサリー" as requested
+                if ((equipment === '防具' || equipment === 'アクセサリー') && name === '体力') {
+                    return;
+                }
 
                 if (!parsedData[key]) {
                     parsedData[key] = {
@@ -298,19 +716,22 @@
                         unit: unit,
                         levels: {}
                     };
-                    // Lv1の基礎値設定
+                    // Set Lv1 base value
                     parsedData[key].levels.Lv1 = { base_value: decimalBaseEnchantNames.includes(name) ? 0.1 : 1 };
                 }
 
-                // 各レベルの追加値をそのままmin_add/max_addとして設定
+                // Set min_add/max_add for each level directly
                 parsedData[key].levels[level] = { min_add: minVal, max_add: maxVal };
             });
 
-            // オブジェクトを配列に戻す
+            // Convert object back to array
             return Object.values(parsedData);
         }
 
-        // ユーザーが指定したエンチャント名の並び順
+        // Custom order for equipment types (for tabs)
+        const customEquipmentOrder = ["武器", "精霊石", "防具", "アクセサリー"];
+
+        // Custom order for enchantment names specified by the user
         const customEnchantmentNameOrder = {
             "武器": [
                 "クリティカルダメージ",
@@ -327,7 +748,7 @@
                 "ボスモンスター追加ダメージ（％）"
             ],
             "防具": [
-                "クリティカルダメージ", // 通常の防具のクリティカルダメージ
+                "クリティカルダメージ", // Generic for helmet/gloves from data.
                 "最大ダメージ",
                 "最小ダメージ",
                 "武器攻撃力/属性",
@@ -335,13 +756,13 @@
                 "全ステータス（％）",
                 "全ステータス",
                 "筋力/魔法力",
-                "クリティカルダメージ（ブーツ）", // ブーツ専用のクリティカルダメージ
+                "クリティカルダメージ（ブーツ）", // Specific for boots
                 "移動速度",
+                "命中率", // New in this order
                 "最大HP（％）",
                 "一般モンスター支配力",
                 "ボスモンスター支配力",
-                "物理/魔法追加ダメージ（％）",
-                "体力"
+                "物理/魔法追加ダメージ（％）"
             ],
             "アクセサリー": [
                 "クリティカルダメージ",
@@ -358,60 +779,59 @@
                 "物理/魔法追加ダメージ",
                 "物理/魔法追加ダメージ（％）",
                 "一般モンスター追加ダメージ（％）",
-                "ボスモンスター追加ダメージ（％）",
-                "体力"
+                "ボスモンスター追加ダメージ（％）"
+            ],
+            "精霊石": [ // New equipment type "精霊石"
+                "最大ダメージ",
+                "最小ダメージ",
+                "武器攻撃力/属性",
+                "筋力/魔法力（％）",
+                "筋力/魔法力",
+                "全ステータス",
+                "命中率",
+                "最大HP（％）",
+                "物理/魔法追加ダメージ（％）",
+                "一般モンスター追加ダメージ",
+                "ボスモンスター追加ダメージ"
             ]
         };
 
-
-        // 提供された生データをパース
+        // Parse the provided raw data
         const enchantmentData = parseEnchantmentData(rawDataString);
 
-        // 装備種別のカスタム順序を定義
-        const customEquipmentOrder = ["武器", "防具", "アクセサリー"]; // 統合された装備種別のみ
+        // Global variable to hold the currently selected equipment type
+        let currentSelectedEquipmentType = '武器'; // Default to "武器"
 
-        // HTML要素への参照を取得
-        const enchantmentInputsContainer = document.getElementById('enchantmentInputsContainer');
+        // global variable to track enchantment row count
+        var enchantmentRowCount = 0; 
+        // enchantmentRowsは各装備タイプごとに存在するエンチャント行のデータを保持
+        const enchantmentRowsByEquipment = {
+            "武器": [],
+            "精霊石": [], // Add new category
+            "防具": [],
+            "アクセサリー": []
+        };
+        // 各装備タイプごとのデフォルトで表示するエンチャント行数
+        const DEFAULT_ROWS_PER_EQUIPMENT_TYPE = 5;
 
-        let enchantmentRowCount = 0; // 各行の一意なIDを追跡
+        // Declare global variables for containers and buttons, assigned in window.onload
+        let enchantmentInputsContainer;
+        let evaluationResultsContainer;
+        let equipmentTabButtons;
+        let resetButton; // リセットボタンの参照を追加
+        let batchLevelSelect; // Lv一括変更の参照を追加
 
-        // 装備種別のドロップダウンにオプションを設定する関数
-        function populateEquipmentTypes(selectElement) {
-            // データから一意の装備種別を取得
-            let equipmentTypes = [...new Set(enchantmentData.map(e => e.equipment))];
-
-            // カスタム順序に従ってソート
-            equipmentTypes.sort((a, b) => {
-                const indexA = customEquipmentOrder.indexOf(a);
-                const indexB = customEquipmentOrder.indexOf(b);
-                // カスタム順序にないタイプは最後に配置
-                if (indexA === -1 && indexB === -1) return 0;
-                if (indexA === -1) return 1;
-                if (indexB === -1) return -1;
-                return indexA - indexB;
-            });
-
-            selectElement.innerHTML = ''; // 既存のオプションをクリア
-            equipmentTypes.forEach(type => {
-                const option = document.createElement('option');
-                option.value = type;
-                option.textContent = type;
-                selectElement.appendChild(option);
-            });
-        }
-
-        // 選択された装備種別に基づいてエンチャント名のドロップダウンにオプションを設定する関数
-        function populateEnchantmentNames(equipmentSelectElement, enchantmentNameSelectElement) {
-            const selectedEquipment = equipmentSelectElement.value;
+        // Function to populate enchantment name dropdown based on the selected equipment type for this row
+        function populateEnchantmentNames(equipmentTypeForThisRow, enchantmentNameSelectElement, selectedName = null) {
             enchantmentNameSelectElement.innerHTML = ''; // 既存のオプションをクリア
 
-            if (selectedEquipment) {
-                const filteredEnchants = enchantmentData.filter(e => e.equipment === selectedEquipment);
+            if (equipmentTypeForThisRow) {
+                const filteredEnchants = enchantmentData.filter(e => e.equipment === equipmentTypeForThisRow);
                 let enchantmentNames = [...new Set(filteredEnchants.map(e => e.name))];
 
-                // 現在の装備種別に対応するカスタム順序が存在する場合
-                if (customEnchantmentNameOrder[selectedEquipment]) {
-                    const order = customEnchantmentNameOrder[selectedEquipment];
+                // If custom order exists for the current equipment type
+                if (customEnchantmentNameOrder[equipmentTypeForThisRow]) {
+                    const order = customEnchantmentNameOrder[equipmentTypeForThisRow];
                     enchantmentNames.sort((a, b) => {
                         const indexA = order.indexOf(a);
                         const indexB = order.indexOf(b);
@@ -421,7 +841,7 @@
                         return indexA - indexB;
                     });
                 } else {
-                    // カスタム順序が定義されていない場合はアルファベット順
+                    // Alphabetical sort if no custom order is defined
                     enchantmentNames.sort();
                 }
 
@@ -431,15 +851,22 @@
                     option.textContent = name;
                     enchantmentNameSelectElement.appendChild(option);
                 });
+
+                // Set selected value if provided
+                if (selectedName && enchantmentNames.includes(selectedName)) {
+                    enchantmentNameSelectElement.value = selectedName;
+                } else if (enchantmentNames.length > 0) {
+                    enchantmentNameSelectElement.value = enchantmentNames[0]; // Select the first available if no valid selectedName
+                }
             }
         }
 
         /**
-         * 特定のエンチャントデータのターゲットレベルにおける有効な最小値と最大値を計算します。
-         * Lv1の基礎値と、Lv2からターゲットレベルまでの累積増加量を合計します。
-         * @param {object} fullEnchantData - エンチャントの種類に関する完全なデータ（全レベルを含む）
-         * @param {string} targetLevel - 計算対象のレベル (例: "Lv2", "Lv3", "Lv4")
-         * @returns {{min: number|null, max: number|null}} - 有効な最小値と最大値、または不明の場合はnull
+         * Calculates the effective minimum and maximum values for a target level.
+         * This function now implements the cumulative sum logic as per user's clarification.
+         * @param {object} fullEnchantData - Complete data for the enchantment type (including all levels)
+         * @param {string} targetLevel - The level for which to calculate (e.g., "Lv2", "Lv3", "Lv4")
+         * @returns {{min: number|null, max: number|null}} - Effective min and max values, or null if unknown
          */
         function calculateEffectiveMinMax(fullEnchantData, targetLevel) {
             let baseValue = fullEnchantData.levels.Lv1.base_value || 0;
@@ -447,259 +874,408 @@
             let cumulativeMinAdd = 0;
             let cumulativeMaxAdd = 0;
 
+            // Define the order of levels for cumulative calculation
             const levelOrder = ["Lv2", "Lv3", "Lv4"];
             
-            // Lv1の場合は基礎値のみを返す
+            // If target level is Lv1, return only base value (though Lv1 is not user-selectable)
             if (targetLevel === "Lv1") {
                 return { min: baseValue, max: baseValue };
             }
 
-            // ターゲットレベルまでの累積増加量を合計
+            // Sum cumulative increases up to the target level
             for (const level of levelOrder) {
-                // レベルデータが存在し、min_add/max_addがnullでないことを確認
+                // Ensure level data exists and min_add/max_add are valid numbers
                 if (fullEnchantData.levels[level] &&
-                    fullEnchantData.levels[level].min_add !== null &&
-                    fullEnchantData.levels[level].max_add !== null) {
+                    typeof fullEnchantData.levels[level].min_add === 'number' &&
+                    typeof fullEnchantData.levels[level].max_add === 'number') {
 
-                    // 現在のレベルがターゲットレベル以下の場合にのみ加算
+                    // Only add if the current level is less than or equal to the target level
                     if (levelOrder.indexOf(level) <= levelOrder.indexOf(targetLevel)) {
                         cumulativeMinAdd += fullEnchantData.levels[level].min_add;
                         cumulativeMaxAdd += fullEnchantData.levels[level].max_add;
                     }
                 } else if (levelOrder.indexOf(level) <= levelOrder.indexOf(targetLevel)) {
-                    // ターゲットレベルまでのパス上のいずれかのレベルで範囲が不明な場合、全体の範囲も不明とする
+                    // If range is unknown for any level on the path to the target, make overall range unknown
+                    // This handles cases where data might be missing for an intermediate level
                     return { min: null, max: null };
                 }
 
-                // ターゲットレベルを超えたら累積を停止
+                // Stop accumulation once the target level is reached
                 if (level === targetLevel) {
                     break;
                 }
             }
 
-            // 基礎値と累積増加量を合計して最終的な有効範囲を返す
+            // Return final effective range by summing base value and cumulative increases
             return { min: baseValue + cumulativeMinAdd, max: baseValue + cumulativeMaxAdd };
         }
 
 
-        // 新しいエンチャント入力行を追加する関数
-        function addEnchantmentRow() {
-            enchantmentRowCount++;
-            const rowId = `enchantment-row-${enchantmentRowCount}`;
+        /**
+         * Function to add a new enchantment input row to a specific category.
+         * Note: This function ensures the full HTML structure for the evaluation result display is created.
+         * @param {string} equipmentType - The equipment type for this row.
+         * @param {string} defaultLevel - The default level to pre-select (e.g., 'Lv4').
+         * @param {string} defaultEnchantmentName - The default enchantment name to pre-select.
+         */
+        function addEnchantmentRowToCategory(equipmentType, defaultLevel = 'Lv4', defaultEnchantmentName = 'クリティカルダメージ') {
+            const rowId = `enchantment-row-${enchantmentRowCount++}`;
 
             const newRow = document.createElement('div');
             newRow.id = rowId;
-            newRow.classList.add('enchantment-row'); // 共通スタイルを適用
+            newRow.classList.add('enchantment-row'); // Apply common styles
+            newRow.dataset.equipmentType = equipmentType; // Save equipment type to data attribute
+            newRow.style.display = 'none'; // Initially hide new rows
+
+            // Create evaluation result div
+            const resultDisplayDiv = document.createElement('div');
+            resultDisplayDiv.id = `result-display-${rowId}`;
+            resultDisplayDiv.classList.add('individual-result-display');
+            resultDisplayDiv.style.display = 'none'; // Initially hide result displays
 
             newRow.innerHTML = `
-                <button type="button" class="remove-enchantment-button text-red-500 hover:text-red-700 font-bold text-xl leading-none">&times;</button>
-                <div class="space-y-4">
-                    <div>
-                        <label for="equipmentType-${enchantmentRowCount}" class="block text-sm font-medium text-gray-700 mb-1">装備種別:</label>
-                        <select id="equipmentType-${enchantmentRowCount}" class="equipment-type-select">
-                            </select>
-                    </div>
-
-                    <div>
-                        <label for="enchantmentName-${enchantmentRowCount}" class="block text-sm font-medium text-gray-700 mb-1">エンチャント名:</label>
-                        <select id="enchantmentName-${enchantmentRowCount}" class="enchantment-name-select">
-                            </select>
-                    </div>
-
-                    <div>
-                        <label for="enchantmentLevel-${enchantmentRowCount}" class="block text-sm font-medium text-gray-700 mb-1">エンチャントレベル:</label>
-                        <select id="enchantmentLevel-${enchantmentRowCount}" class="enchantment-level-select">
-                            <option value="Lv2">Lv2</option>
-                            <option value="Lv3">Lv3</option>
-                            <option value="Lv4" selected>Lv4</option> </select>
-                    </div>
-
-                    <div>
-                        <label for="myEnchantmentValue-${enchantmentRowCount}" class="block text-sm font-medium text-gray-700 mb-1">自分のエンチャント数値:</label>
-                        <input type="number" id="myEnchantmentValue-${enchantmentRowCount}" class="my-enchantment-value-input" placeholder="数値を入力してください">
+                <div class="enchant-level-name-group">
+                    <select id="enchantmentLevel-${rowId}" class="enchantment-level-select">
+                        <option value="Lv2">Lv2</option>
+                        <option value="Lv3">Lv3</option>
+                        <option value="Lv4">Lv4</option>
+                    </select>
+                    <select id="enchantmentName-${rowId}" class="enchantment-name-select">
+                    </select>
+                </div>
+                <input type="number" id="myEnchantmentValue-${rowId}" class="my-enchantment-value-input" placeholder="数値を入力">
+            `;
+            
+            // 評価結果表示部分のHTMLをここで完全に設定します
+            resultDisplayDiv.innerHTML = `
+                <p class="evaluation-message"></p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar">
+                        <span class="progress-percentage-text"></span>
                     </div>
                 </div>
-                <div class="individual-result-display bg-gray-50 p-4 rounded-lg border border-gray-200 text-center mt-4 hidden">
-                    <p class="evaluation-message text-lg text-gray-700 mb-2"></p>
-                    <div class="progress-bar-container w-full bg-gray-200 rounded-full h-8 mt-2 hidden relative"> <div class="progress-bar bg-gradient-to-r from-red-400 via-yellow-400 to-green-500 h-full rounded-full flex items-center justify-center transition-all duration-500 ease-in-out" style="width: 0%;">
-                            <span class="progress-percentage-text absolute text-lg font-semibold"></span> </div>
-                    </div>
-                    <p class="min-value-display text-sm text-gray-500 mt-2"></p>
-                    <p class="max-value-display text-sm text-gray-500"></p>
+                <div class="min-max-display text-xs text-gray-600">
+                    <span class="min-value-display">最小値: -</span> | <span class="max-value-display">最大値: -</span>
                 </div>
             `;
-            enchantmentInputsContainer.appendChild(newRow);
 
-            const equipmentSelect = newRow.querySelector('.equipment-type-select');
-            const enchantmentNameSelect = newRow.querySelector('.enchantment-name-select');
-            const enchantmentLevelSelect = newRow.querySelector('.enchantment-level-select');
-            const myEnchantmentValueInput = newRow.querySelector('.my-enchantment-value-input');
-            const removeButton = newRow.querySelector('.remove-enchantment-button');
-            const individualResultDisplay = newRow.querySelector('.individual-result-display');
-            // const progressBarPercentageText = newRow.querySelector('.progress-percentage-text'); // This is inside evaluateSingleEnchantmentRow
 
-            // 新しい行の装備種別ドロップダウンにオプションを設定し、デフォルト値を「武器」に設定
-            populateEquipmentTypes(equipmentSelect);
-            equipmentSelect.value = '武器';
+            // Append elements to their respective containers now, but keep them hidden
+            if (enchantmentInputsContainer) {
+                enchantmentInputsContainer.appendChild(newRow);
+            }
+            if (evaluationResultsContainer) {
+                evaluationResultsContainer.appendChild(resultDisplayDiv);
+            }
 
-            // デフォルトの装備種別に基づいてエンチャント名を設定し、デフォルト値を「クリティカルダメージ」に設定
-            populateEnchantmentNames(equipmentSelect, enchantmentNameSelect);
-            if (enchantmentNameSelect.options.length > 0) {
-                // 「クリティカルダメージ」が利用可能ならそれを選択、そうでなければ最初のオプションを選択
-                const defaultNameOption = Array.from(enchantmentNameSelect.options).find(opt => opt.value === 'クリティカルダメージ');
-                enchantmentNameSelect.value = defaultNameOption ? 'クリティカルダメージ' : enchantmentNameSelect.options[0].value;
+            // Get references to elements within the new row
+            const levelSelect = newRow.querySelector(`#enchantmentLevel-${rowId}`);
+            const nameSelect = newRow.querySelector(`#enchantmentName-${rowId}`);
+            const valueInput = newRow.querySelector(`#myEnchantmentValue-${rowId}`);
+            
+            // Set up event listeners
+            levelSelect.addEventListener('change', () => updateEvaluationResult(rowId, equipmentType));
+            nameSelect.addEventListener('change', () => {
+                // When enchantment name changes, repopulate to ensure consistency (e.g., if data changes later)
+                // And update evaluation for the current row
+                updateEvaluationResult(rowId, equipmentType);
+            });
+            valueInput.addEventListener('input', () => updateEvaluationResult(rowId, equipmentType));
+
+            // Populate enchantment names for the new row and set default values
+            // Use '最大ダメージ' as a common default if 'クリティカルダメージ' is not available for '精霊石'
+            let defaultNameForNewRow = defaultEnchantmentName;
+            if (equipmentType === '精霊石' && !customEnchantmentNameOrder['精霊石'].includes('クリティカルダメージ')) {
+                defaultNameForNewRow = '最大ダメージ';
+            }
+            populateEnchantmentNames(equipmentType, nameSelect, defaultNameForNewRow);
+            levelSelect.value = defaultLevel;
+            updateEvaluationResult(rowId, equipmentType); // Initial evaluation
+
+            // Store references in the global map
+            enchantmentRowsByEquipment[equipmentType].push({
+                id: rowId,
+                rowElement: newRow,
+                resultDisplayDiv: resultDisplayDiv,
+                levelSelect: levelSelect,
+                nameSelect: nameSelect,
+                valueInput: valueInput
+            });
+        }
+
+
+        /**
+         * Updates the evaluation result for a specific enchantment row.
+         * @param {string} rowId - The ID of the row to update.
+         * @param {string} equipmentType - The equipment type for this row.
+         */
+        function updateEvaluationResult(rowId, equipmentType) {
+            const rowData = enchantmentRowsByEquipment[equipmentType].find(row => row.id === rowId);
+            if (!rowData) return;
+
+            const selectedLevel = rowData.levelSelect.value;
+            const selectedEnchantmentName = rowData.nameSelect.value;
+            const myValue = parseFloat(rowData.valueInput.value);
+
+            const fullEnchantData = enchantmentData.find(e => e.name === selectedEnchantmentName && e.equipment === equipmentType);
+            const messageDisplay = rowData.resultDisplayDiv.querySelector('.evaluation-message');
+            const progressBar = rowData.resultDisplayDiv.querySelector('.progress-bar');
+            const percentageText = rowData.resultDisplayDiv.querySelector('.progress-percentage-text');
+            const minValueDisplay = rowData.resultDisplayDiv.querySelector('.min-value-display');
+            const maxValueDisplay = rowData.resultDisplayDiv.querySelector('.max-value-display');
+
+            const requiresOneDecimal = ['一般モンスター支配力', 'ボスモンスター支配力', 'スキルクールタイム減少'].includes(selectedEnchantmentName);
+
+            rowData.resultDisplayDiv.style.display = 'flex'; // Always display the result div with flex
+
+            // If input value is empty or not a valid number
+            if (isNaN(myValue) || rowData.valueInput.value.trim() === '') {
+                messageDisplay.textContent = `${selectedEnchantmentName} (${selectedLevel})`;
+                progressBar.style.width = '0%';
+                progressBar.style.backgroundColor = '#e5e7eb'; // Default gray color
+                percentageText.textContent = ''; // No percentage shown for empty input
+                minValueDisplay.textContent = '最小値: -';
+                maxValueDisplay.textContent = '最大値: -';
+                syncRowHeights(); // Call sync after updating content
+                return; // Stop further calculation as there's no valid input
+            }
+
+            // If no data found for the selected enchantment, show a default state but not hidden
+            if (!fullEnchantData) {
+                messageDisplay.textContent = `${selectedEnchantmentName} (${selectedLevel})`;
+                progressBar.style.width = '0%';
+                progressBar.style.backgroundColor = '#e5e7eb';
+                percentageText.textContent = '';
+                minValueDisplay.textContent = '最小値: -';
+                maxValueDisplay.textContent = '最大値: -';
+                syncRowHeights(); // Call sync after updating content
+                return;
+            }
+
+            // Calculate effective min/max using the cumulative logic
+            const { min: effectiveMin, max: effectiveMax } = calculateEffectiveMinMax(fullEnchantData, selectedLevel);
+
+            let formattedMin = effectiveMin;
+            let formattedMax = effectiveMax;
+            let unitToDisplay = fullEnchantData.unit === '%' ? '%' : ''; // Default unit
+
+            if (requiresOneDecimal) {
+                if (effectiveMin !== null) formattedMin = effectiveMin.toFixed(1);
+                if (effectiveMax !== null) formattedMax = effectiveMax.toFixed(1);
+                unitToDisplay = ''; // Remove unit for these specific enchantments
+            } else {
+                // For other enchantments, if they are fixed value (integer), display as integers
+                if (fullEnchantData.unit === '固定値' && effectiveMin !== null && Number.isInteger(effectiveMin)) {
+                    formattedMin = effectiveMin.toFixed(0);
+                    formattedMax = effectiveMax.toFixed(0);
+                } else {
+                    // Otherwise, keep original float values or default behavior
+                    if (effectiveMin !== null) formattedMin = effectiveMin;
+                    if (effectiveMax !== null) formattedMax = effectiveMax;
+                }
+            }
+
+
+            // Handle unknown ranges
+            if (effectiveMin === null || effectiveMax === null) {
+                messageDisplay.textContent = `${selectedEnchantmentName} (${selectedLevel})`; // エンチャント名とLv表記
+                progressBar.style.width = '0%';
+                progressBar.style.backgroundColor = '#e5e7eb';
+                percentageText.textContent = '';
+                // Use formatted values for min/max display
+                minValueDisplay.textContent = `最小値: 不明`;
+                maxValueDisplay.textContent = `最大値: 不明`;
+                syncRowHeights(); // Call sync after updating content
+                return;
+            }
+
+            // Handle value out of range
+            if (myValue < effectiveMin || myValue > effectiveMax) {
+                messageDisplay.textContent = `${selectedEnchantmentName} (${selectedLevel})`; // エンチャント名とLv表記
+                progressBar.style.width = '0%';
+                progressBar.style.backgroundColor = '#fca5a5'; // red-300
+                percentageText.textContent = '';
+                // Use formatted values for min/max display
+                minValueDisplay.textContent = `最小値: ${formattedMin}${unitToDisplay}`;
+                maxValueDisplay.textContent = `最大値: ${formattedMax}${unitToDisplay}`;
+                syncRowHeights(); // Call sync after updating content
+                return;
+            }
+
+            // Calculate percentage
+            let percentage = 0;
+            if (effectiveMax === effectiveMin) { // Avoid division by zero for Lv1 etc.
+                percentage = 100;
+            } else {
+                percentage = ((myValue - effectiveMin) / (effectiveMax - effectiveMin)) * 100;
+            }
+            percentage = Math.max(0, Math.min(100, percentage)); // Clamp between 0-100%
+
+            // Get evaluation info (message, color) - Removed specific messages as per request
+            let color = '';
+
+            if (percentage >= 95) {
+                color = '#10b981'; // green-500
+            } else if (percentage >= 80) {
+                color = '#22c55e'; // green-400
+            } else if (percentage >= 60) {
+                color = '#34d399'; // green-300
+            } else if (percentage >= 40) {
+                color = '#facc15'; // yellow-400
+            } else if (percentage >= 20) {
+                color = '#fbbf24'; // amber-400
+            } else {
+                color = '#ef4444'; // red-500
+            }
+
+            // Update DOM
+            messageDisplay.textContent = `${selectedEnchantmentName} (${selectedLevel})`; // エンチャント名とLv表記
+            progressBar.style.width = `${percentage}%`;
+            progressBar.style.backgroundColor = color;
+            percentageText.textContent = `${percentage.toFixed(1)}%`;
+            // Use formatted values for min/max display
+            minValueDisplay.textContent = `最小値: ${formattedMin}${unitToDisplay}`;
+            maxValueDisplay.textContent = `最大値: ${formattedMax}${unitToDisplay}`;
+            syncRowHeights(); // Call sync after updating content
+        }
+
+        /**
+         * Dynamically synchronizes the heights of corresponding left and right panel rows.
+         * This function should be called after any DOM manipulation that might change row heights.
+         */
+        function syncRowHeights() {
+            // Get all currently visible enchantment rows (left panel)
+            const visibleEnchantmentRows = Array.from(enchantmentInputsContainer.querySelectorAll('.enchantment-row'))
+                                                .filter(row => row.style.display !== 'none');
+
+            visibleEnchantmentRows.forEach(rowElement => {
+                const rowId = rowElement.id;
+                const resultDisplayDiv = document.getElementById(`result-display-${rowId}`);
+
+                if (resultDisplayDiv) {
+                    // Reset heights to allow natural content height calculation
+                    rowElement.style.minHeight = 'auto';
+                    resultDisplayDiv.style.minHeight = 'auto';
+
+                    // Get the actual computed height of both elements
+                    const leftHeight = rowElement.offsetHeight;
+                    const rightHeight = resultDisplayDiv.offsetHeight;
+
+                    // Determine the maximum height
+                    const maxHeight = Math.max(leftHeight, rightHeight);
+
+                    // Apply the maximum height to both elements' min-height
+                    rowElement.style.minHeight = `${maxHeight}px`;
+                    resultDisplayDiv.style.minHeight = `${maxHeight}px`;
+                }
+            });
+        }
+
+
+        /**
+         * Switches the displayed equipment type.
+         * Shows/hides relevant enchantment rows and their evaluation results.
+         * @param {string} newEquipmentType - The newly selected equipment type.
+         */
+        function switchEquipmentType(newEquipmentType) {
+            currentSelectedEquipmentType = newEquipmentType;
+
+            // Update active state of all tab buttons
+            equipmentTabButtons.forEach(button => {
+                button.classList.remove('active');
+                if (button.dataset.equipmentType === newEquipmentType) {
+                    button.classList.add('active');
+                }
+            });
+
+            // Hide all enchantment rows and results initially
+            Object.values(enchantmentRowsByEquipment).forEach(rows => {
+                rows.forEach(rowData => {
+                    rowData.rowElement.style.display = 'none';
+                    rowData.resultDisplayDiv.style.display = 'none';
+                });
+            });
+
+            // Get the currently selected batch level
+            const currentBatchLevel = batchLevelSelect ? batchLevelSelect.value : 'Lv4'; // Default to Lv4 if batch select not found
+
+            // If no rows exist for the new equipment type, add default number of rows
+            if (enchantmentRowsByEquipment[newEquipmentType].length === 0) {
+                for (let i = 0; i < DEFAULT_ROWS_PER_EQUIPMENT_TYPE; i++) {
+                    // For '精霊石', use '最大ダメージ' as default if 'クリティカルダメージ' isn't suitable
+                    const defaultEnchantment = (newEquipmentType === '精霊石') ? '最大ダメージ' : 'クリティカルダメージ';
+                    addEnchantmentRowToCategory(newEquipmentType, currentBatchLevel, defaultEnchantment);
+                }
             }
             
-            // エンチャントレベルのデフォルトはLv4 (innerHTMLで設定済み)
-
-            // 動的要素のイベントリスナーを追加
-            // リアルタイム評価
-            myEnchantmentValueInput.addEventListener('input', () => evaluateSingleEnchantmentRow(newRow));
-
-            // 装備種別またはエンチャント名変更時に数値と結果をリセット
-            equipmentSelect.addEventListener('change', () => {
-                populateEnchantmentNames(equipmentSelect, enchantmentNameSelect);
-                if (enchantmentNameSelect.options.length > 0) {
-                    const defaultNameOption = Array.from(enchantmentNameSelect.options).find(opt => opt.value === 'クリティカルダメージ');
-                    enchantmentNameSelect.value = defaultNameOption ? 'クリティカルダメージ' : enchantmentNameSelect.options[0].value;
-                }
-                myEnchantmentValueInput.value = ''; // 数値を自動的に削除
-                individualResultDisplay.classList.add('hidden'); // 結果を非表示
+            // Show and update rows for the current equipment type
+            enchantmentRowsByEquipment[newEquipmentType].forEach(rowData => {
+                rowData.rowElement.style.display = 'flex';
+                // Always set level to current batch level for consistency when switching tabs
+                rowData.levelSelect.value = currentBatchLevel; 
+                // Initial update on switch to ensure correct state (e.g., showing empty state)
+                updateEvaluationResult(rowData.id, currentSelectedEquipmentType);
             });
-            enchantmentNameSelect.addEventListener('change', () => {
-                myEnchantmentValueInput.value = ''; // 数値を自動的に削除
-                individualResultDisplay.classList.add('hidden'); // 結果を非表示
-            });
-            enchantmentLevelSelect.addEventListener('change', () => {
-                // レベル変更時は数値をリセットしないが、結果は非表示にする
-                individualResultDisplay.classList.add('hidden');
-            });
-
-            removeButton.addEventListener('click', () => {
-                newRow.remove();
-            });
+            // Call sync after all rows for the new equipment type are displayed and updated
+            syncRowHeights();
         }
 
-        // 単一のエンチャント入力行を評価する関数
-        function evaluateSingleEnchantmentRow(rowElement) {
-            const equipmentSelect = rowElement.querySelector('.equipment-type-select');
-            const enchantmentNameSelect = rowElement.querySelector('.enchantment-name-select');
-            const enchantmentLevelSelect = rowElement.querySelector('.enchantment-level-select');
-            const myEnchantmentValueInput = rowElement.querySelector('.my-enchantment-value-input');
-
-            const individualResultDisplay = rowElement.querySelector('.individual-result-display');
-            const evaluationMessageEl = individualResultDisplay.querySelector('.evaluation-message');
-            const progressBarContainerEl = individualResultDisplay.querySelector('.progress-bar-container');
-            const progressBarEl = individualResultDisplay.querySelector('.progress-bar');
-            const minValueDisplayEl = individualResultDisplay.querySelector('.min-value-display');
-            const maxValueDisplayEl = individualResultDisplay.querySelector('.max-value-display');
-            const progressBarPercentageText = individualResultDisplay.querySelector('.progress-percentage-text');
-
-
-            // 現在の行から値を取得
-            const selectedEquipment = equipmentSelect.value;
-            const selectedEnchantmentName = enchantmentNameSelect.value;
-            const selectedEnchantmentLevel = enchantmentLevelSelect.value;
-            const myValue = parseFloat(myEnchantmentValueInput.value);
-
-            // --- 個別の検証と評価ロジック ---
-            // 数値が入力されていない、または選択肢が未選択の場合は結果を非表示にする
-            if (!selectedEquipment || !selectedEnchantmentName || !selectedEnchantmentLevel || isNaN(myValue) || myValue < 0) {
-                evaluationMessageEl.innerHTML = '入力が不完全または無効です。<br>選択肢と数値をすべて確認してください。';
-                evaluationMessageEl.classList.add('text-red-600');
-                progressBarContainerEl.classList.add('hidden');
-                minValueDisplayEl.textContent = '';
-                maxValueDisplayEl.textContent = '';
-                individualResultDisplay.classList.remove('hidden'); // エラーを表示するために表示
-                return;
-            } else {
-                evaluationMessageEl.classList.remove('text-red-600');
-            }
-
-            // 選択されたタイプ（全レベル）の完全なエンチャントデータを検索
-            const fullEnchantmentData = enchantmentData.find(e =>
-                e.equipment === selectedEquipment &&
-                e.name === selectedEnchantmentName
-            );
-
-            if (!fullEnchantmentData) {
-                evaluationMessageEl.innerHTML = 'この組み合わせのデータが見つかりません。<br>正しい装備種別とエンチャント名を選択してください。';
-                evaluationMessageEl.classList.add('text-red-600');
-                progressBarContainerEl.classList.add('hidden');
-                minValueDisplayEl.textContent = '';
-                maxValueDisplayEl.textContent = '';
-                individualResultDisplay.classList.remove('hidden');
-                return;
-            }
-
-            // 累積増加に基づいて選択されたレベルの有効な最小値/最大値を計算
-            const { min: effectiveMinValue, max: effectiveMaxValue } = calculateEffectiveMinMax(fullEnchantmentData, selectedEnchantmentLevel);
-            // 単位と名前を安全に取得（フォールバック付き）
-            const unit = fullEnchantmentData.unit || '';
-            const name = fullEnchantmentData.name || '';
-
-            // 小数点表示が必要なエンチャント名のリスト
-            const decimalDisplayEnchantNames = ['一般モンスター支配力', 'ボスモンスター支配力', 'スキルクールタイム減少'];
-
-
-            if (effectiveMinValue === null || effectiveMaxValue === null || isNaN(effectiveMinValue) || isNaN(effectiveMaxValue)) {
-                evaluationMessageEl.innerHTML = `${name} (${selectedEnchantmentLevel}):<br>数値範囲は現在不明です。データを確認してください。`;
-                minValueDisplayEl.textContent = `最小値: 不明`;
-                maxValueDisplayEl.textContent = `最大値: 不明`;
-                progressBarContainerEl.classList.add('hidden');
-            } else if (myValue < effectiveMinValue || myValue > effectiveMaxValue) {
-                evaluationMessageEl.innerHTML = `${name} (${selectedEnchantmentLevel}, ${myValue}${unit}):<br>通常の範囲 (${effectiveMinValue}${unit} - ${effectiveMaxValue}${unit}) から外れています。`;
-                minValueDisplayEl.textContent = `最小値: ${effectiveMinValue}${unit}`;
-                maxValueDisplayEl.textContent = `最大値: ${effectiveMaxValue}${unit}`;
-                progressBarContainerEl.classList.add('hidden');
-            } else {
-                const range = effectiveMaxValue - effectiveMinValue;
-                let percentage = 0;
-                if (range > 0) {
-                    percentage = ((myValue - effectiveMinValue) / range) * 100;
-                } else if (effectiveMinValue === effectiveMaxValue) {
-                    percentage = (myValue === effectiveMinValue) ? 100 : 0;
-                }
-
-                // パーセンテージを強調し、「です。」を削除
-                evaluationMessageEl.innerHTML = `${name} (${selectedEnchantmentLevel}):<br>範囲内の約 <strong class="text-2xl font-bold">${percentage.toFixed(1)}%</strong>`;
-                
-                // 「支配力」や「スキルクールタイム減少」のように0.1単位を使用するエンチャントの場合、表示の小数点以下桁数を調整
-                const fixedDecimalPlaces = decimalDisplayEnchantNames.includes(name) ? 1 : 0;
-                minValueDisplayEl.textContent = `最小値: ${effectiveMinValue.toFixed(fixedDecimalPlaces)}${unit}`;
-                maxValueDisplayEl.textContent = `最大値: ${effectiveMaxValue.toFixed(fixedDecimalPlaces)}${unit}`;
-
-                // プログレスバーを更新
-                progressBarEl.style.width = `${percentage}%`;
-                progressBarPercentageText.textContent = `${percentage.toFixed(1)}%`; // バー上にパーセンテージを表示
-                
-                // 背景色に応じてテキストの色を調整（視認性のため）
-                if (percentage < 30) { // グラデーションの左側（赤/オレンジ部分）
-                    progressBarPercentageText.classList.remove('text-white');
-                    progressBarPercentageText.classList.add('text-gray-800'); // 明るい背景には濃いテキスト
-                } else if (percentage > 70) { // グラデーションの右側（緑部分）
-                    progressBarPercentageText.classList.remove('text-gray-800');
-                    progressBarPercentageText.classList.add('text-white'); // 濃い背景には明るいテキスト
-                } else { // 中間部分（黄色っぽい部分、どちらでもあり得る）
-                     progressBarPercentageText.classList.remove('text-white');
-                     progressBarPercentageText.classList.add('text-gray-800');
-                }
-                progressBarContainerEl.classList.remove('hidden');
-            }
-            individualResultDisplay.classList.remove('hidden'); // 個別の結果を表示
+        /**
+         * Resets all enchantment input values only.
+         * This function *only* clears input fields and updates the display of *existing* result elements.
+         * It does NOT add or remove any HTML elements (graphs/percentages).
+         */
+        function resetInputValues() {
+            // Loop through all rows for the currently selected equipment type
+            enchantmentRowsByEquipment[currentSelectedEquipmentType].forEach(rowData => {
+                rowData.valueInput.value = ''; // Clear the input value
+                // Update the evaluation result for this specific row.
+                // This will make its display show "Min: - | Max: -" and a gray progress bar,
+                // but it will NOT create a new display element.
+                updateEvaluationResult(rowData.id, currentSelectedEquipmentType); 
+            });
+            syncRowHeights(); // Call sync after resetting values to ensure consistent alignment
         }
 
 
-        // ページ読み込み時に初期の8行を追加
-        window.onload = () => {
-            for (let i = 0; i < 8; i++) {
-                addEnchantmentRow();
-            }
-            // 最初の行をデフォルト選択値で即時評価する（初期表示を整えるため）
-            // 全ての行を初期評価
-            document.querySelectorAll('.enchantment-row').forEach(row => {
-                evaluateSingleEnchantmentRow(row);
+        // Execute initialization after the window has fully loaded
+        window.onload = function () {
+            // Get references to DOM elements
+            enchantmentInputsContainer = document.getElementById('enchantmentInputsContainer');
+            evaluationResultsContainer = document.getElementById('evaluationResultsContainer');
+            equipmentTabButtons = document.querySelectorAll('.equipment-tabs-container button');
+            resetButton = document.getElementById('resetButton');
+            batchLevelSelect = document.getElementById('batchLevelSelect'); // Lv一括変更の参照を取得
+
+            // Set up event listeners for equipment type tabs
+            equipmentTabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const equipmentType = button.dataset.equipmentType;
+                    // Directly call switchEquipmentType which handles both active class and row updates
+                    switchEquipmentType(equipmentType);
+                });
             });
+
+            // Set up event listener for reset button
+            resetButton.addEventListener('click', resetInputValues); // Changed to resetInputValues
+
+            // Set up event listener for batch level change
+            if (batchLevelSelect) {
+                batchLevelSelect.addEventListener('change', () => {
+                    const newBatchLevel = batchLevelSelect.value;
+                    // Apply batch level to all currently displayed rows for the active equipment type
+                    enchantmentRowsByEquipment[currentSelectedEquipmentType].forEach(rowData => {
+                        rowData.levelSelect.value = newBatchLevel;
+                        updateEvaluationResult(rowData.id, currentSelectedEquipmentType);
+                    });
+                    syncRowHeights(); // Call sync after batch level change
+                });
+            }
+
+            // On page load, generate and display initial rows for the default equipment type (Weapon)
+            // The initial switchEquipmentType call will handle the default rows and sync heights.
+            switchEquipmentType(currentSelectedEquipmentType);
+            window.addEventListener('resize', syncRowHeights); // Sync heights on window resize
         };
     </script>
 </body>
